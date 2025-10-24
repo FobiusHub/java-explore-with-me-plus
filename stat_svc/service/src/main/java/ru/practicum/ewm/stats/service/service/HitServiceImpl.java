@@ -12,6 +12,7 @@ import ru.practicum.ewm.stats.service.repository.HitRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -61,6 +62,6 @@ public class HitServiceImpl implements HitService {
             }
         }
 
-        return result;
+        return result.stream().sorted((Comparator.comparing(ViewStatsDto::getHits).reversed())).toList();
     }
 }
