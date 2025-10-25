@@ -9,16 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-/**
- * Свойства клиента статистики.
- * Пример application.properties основного сервиса:
- *   stats.base-url=http://localhost:9090
- *   stats.connect-timeout=500ms
- *   stats.read-timeout=1s
- *   stats.hit-max-attempts=3
- *   stats.hit-backoff-millis=200
- *   stats.hit-backoff-cap-millis=2s
- */
 @Component
 @ConfigurationProperties(prefix = "stats")
 @Validated
