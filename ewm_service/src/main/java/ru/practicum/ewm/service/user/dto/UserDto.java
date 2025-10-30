@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class UserDto {
-    private long id;
+    private Long id;
 
     @NotBlank(message = "Имя должно быть заполнено")
     private String name;

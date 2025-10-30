@@ -15,7 +15,7 @@ import java.util.Objects;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     private String name;
 
@@ -29,11 +29,11 @@ public class User {
         if (!(o instanceof User)) {
             return false;
         }
-        return id == ((User) o).getId() && name.equals(((User) o).getName());
+        return name.equals(((User) o).getName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, email);
+        return Objects.hash(email);
     }
 }
