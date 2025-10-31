@@ -22,12 +22,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto create(UserDto userDto) {
-        User user = UserMapper.toUser(userDto);
         String email = userDto.getEmail();
         validateEmailUnique(email);
+        User user = UserMapper.toUser(userDto);
         return UserMapper.toUserDto(userRepository.save(user));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<UserDto> get(List<Long> ids, int from, int size) {
         return userRepository.findUsers(ids, from, size).stream().map(UserMapper::toUserDto).toList();
@@ -39,6 +40,7 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(userId);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public void checkUserExist(long userId) {
         if (!userRepository.existsById(userId)) {
