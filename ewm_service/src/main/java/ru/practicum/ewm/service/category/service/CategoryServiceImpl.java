@@ -52,11 +52,13 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CategoryDto> getAll(int from, int size) {
         return categoryRepository.findCategories(from, size).stream().map(CategoryMapper::toCategoryDto).toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CategoryDto get(long categoryId) {
         Category category = categoryRepository.findById(categoryId)
