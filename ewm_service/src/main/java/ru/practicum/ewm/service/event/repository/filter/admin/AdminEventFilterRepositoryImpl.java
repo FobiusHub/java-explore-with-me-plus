@@ -1,4 +1,4 @@
-package ru.practicum.ewm.service.event.repository.EventFilterAdmin;
+package ru.practicum.ewm.service.event.repository.filter.admin;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;

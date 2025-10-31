@@ -1,4 +1,4 @@
-package ru.practicum.ewm.service.event.repository.PublicEventFilter;
+package ru.practicum.ewm.service.event.repository.filter.open;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class PublicEventFilterRepositoryImpl implements PublicEventFilterRepository {
+public class OpenEventFilterRepositoryImpl implements OpenEventFilterRepository {
 
     private final EntityManager entityManager;
 
-    public List<Event> findAllByFilter(PublicEventFilter publicEventFilter) {
+    public List<Event> findAllByFilter(OpenEventFilter publicEventFilter) {
         Class<Event> entityClass = Event.class;
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = criteriaBuilder.createQuery(entityClass);

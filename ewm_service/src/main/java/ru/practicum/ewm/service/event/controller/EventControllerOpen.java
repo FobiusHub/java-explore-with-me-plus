@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.service.event.enums.EventSort;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
-import ru.practicum.ewm.service.event.service.EventServicePublic;
+import ru.practicum.ewm.service.event.service.EventServiceOpen;
 import ru.practicum.ewm.service.event.utill.DateTimeFormatUtil;
 
 import java.time.LocalDateTime;
@@ -20,7 +20,7 @@ import java.util.List;
  * Публичный REST контроллер для работы с событиями.
  * Предоставляет API для поиска и просмотра событий без аутентификации.
  *
- * @see EventServicePublic
+ * @see EventServiceOpen
  * @see EventFullDto
  * @see EventShortDto
  */
@@ -29,9 +29,9 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/events")
-public class EventControllerPublic {
+public class EventControllerOpen {
 
-    private final EventServicePublic publicEventService;
+    private final EventServiceOpen publicEventService;
 
     /**
      * Получает список событий с применением фильтров и пагинации.

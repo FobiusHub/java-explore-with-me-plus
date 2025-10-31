@@ -1,4 +1,4 @@
-package ru.practicum.ewm.service.event.repository.PublicEventFilter;
+package ru.practicum.ewm.service.event.repository.filter.open;
 
 import lombok.Builder;
 import ru.practicum.ewm.service.event.enums.EventSort;
@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
-public record PublicEventFilter(
+public record OpenEventFilter(
         String text, // by annotation text (case-insensitive);
         List<Long> categories, // by List of category ids;
         Boolean paid, // by paid status (true or false);

@@ -8,7 +8,7 @@ import ru.practicum.ewm.service.event.error.EventNotFoundException;
 import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
-import ru.practicum.ewm.service.event.repository.EventFilterAdmin.AdminEventFilter;
+import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilter;
 import ru.practicum.ewm.service.event.repository.EventJpaRepository;
 
 import java.time.LocalDateTime;
