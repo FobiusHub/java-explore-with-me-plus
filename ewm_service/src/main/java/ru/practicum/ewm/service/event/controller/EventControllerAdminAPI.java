@@ -1,6 +1,8 @@
 package ru.practicum.ewm.service.event.controller;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
+import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilterDto;
 import ru.practicum.ewm.service.event.service.EventServiceAdmin;
 import ru.practicum.ewm.service.event.utill.DateTimeFormatUtil;
 
@@ -30,8 +33,8 @@ import java.util.List;
 @Validated
 @RestController
 @AllArgsConstructor
-@RequestMapping("admin/events")
-public class EventControllerAdmin {
+@RequestMapping("/admin/events")
+public class EventControllerAdminAPI {
 
     private final EventServiceAdmin adminEventService;
 
@@ -64,21 +67,21 @@ public class EventControllerAdmin {
             @DateTimeFormat(pattern = DateTimeFormatUtil.DATE_TIME_FORMAT)
             LocalDateTime rangeEnd,
 
-            @RequestParam(name = "from", defaultValue = "0") Integer from,
-            @RequestParam(name = "size", defaultValue = "10") Integer size
+            @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(value = "size", defaultValue = "10") @Positive Integer size
     ) {
         log.info("GET /admin/events with parameters: users={}, states={}, categories={}, rangeStart={}, rangeEnd={},  from={}, size={}",
                 userIds, states, categoryIds, rangeStart, rangeEnd, from, size);
 
-        List<EventShortDto> responseList = adminEventService.getEventsFilteredBy(
-                userIds, // by list of initiator ids;
-                states, // by list of event states;
-                categoryIds, // by list of category ids;
-                rangeStart == null ? LocalDateTime.now() : rangeStart, // by date range start-end (start value);
-                rangeEnd, // by date range start-end (end value);
-                from, // sql-request OFFSET value;
-                size // sql-request LIMIT value;
-        );
+        List<EventShortDto> responseList = adminEventService.getEventsFilteredBy(AdminEventFilterDto.builder()
+                .users(userIds)
+                .states(states)
+                .categories(categoryIds)
+                .rangeStart(rangeStart == null ? LocalDateTime.now() : rangeStart)
+                .rangeEnd(rangeEnd)
+                .from(from)
+                .size(size)
+                .build());
         log.info("GET /admin/events, response:{}", responseList);
         return responseList;
     }
@@ -97,14 +100,14 @@ public class EventControllerAdmin {
         log.info("GET /events/id with id={}", id);
         return adminEventService.getEventById(id);
     }
+
     @PatchMapping("/{id}")
     public String patchEventById(
             @PathVariable("id") Long id,
             @RequestBody @NotNull Event event
     ) {
         log.info("PATCH /events/id with id={}", id);
-//        adminEventService.patch
-      String response = "";
-     return response;
+        adminEventService.patchEvent(event);
+        return null;
     }
 }

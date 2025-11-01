@@ -1,5 +1,6 @@
 package ru.practicum.ewm.service.event.service;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -8,10 +9,9 @@ import ru.practicum.ewm.service.event.error.EventNotFoundException;
 import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
-import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilter;
+import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilterDto;
 import ru.practicum.ewm.service.event.repository.EventJpaRepository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -20,7 +20,7 @@ import java.util.List;
  * В отличие от публичного сервиса, позволяет работать с событиями в любом состоянии.
  *
  * @see EventJpaRepository
- * @see AdminEventFilter
+ * @see AdminEventFilterDto
  * @see Event
  */
 @Slf4j
@@ -34,36 +34,13 @@ public class EventServiceAdmin {
      * Получает отфильтрованный список событий для административной панели.
      * Поддерживает расширенные фильтры, недоступные в публичном API.
      *
-     * @param users      Список идентификаторов инициаторов событий для фильтрации
-     * @param states     Список состояний событий для фильтрации
-     * @param categories Список идентификаторов категорий для фильтрации
-     * @param rangeStart Начальная дата диапазона событий
-     * @param rangeEnd   Конечная дата диапазона событий
-     * @param from       Начальная позиция пагинации
-     * @param size       Количество элементов на странице
      * @return Список событий в кратком формате {@link EventShortDto}
      * @throws BadRequestException если диапазон дат указан некорректно
      * @apiNote В отличие от публичного API, позволяет фильтровать по пользователям и состояниям
      */
-    public List<EventShortDto> getEventsFilteredBy(
-            List<Long> users,
-            List<String> states,
-            List<Long> categories,
-            LocalDateTime rangeStart,
-            LocalDateTime rangeEnd,
-            Integer from,
-            Integer size
+    public List<EventShortDto> getEventsFilteredBy(AdminEventFilterDto adminEventFilter
     ) {
-        validateEventDateRange(rangeStart, rangeEnd);
-        return eventJpaRepository.findAllByFilter(AdminEventFilter.builder()
-                        .users(users)
-                        .states(states)
-                        .categories(categories)
-                        .rangeStart(rangeStart)
-                        .rangeEnd(rangeEnd)
-                        .from(from)
-                        .size(size)
-                        .build()).stream()
+        return eventJpaRepository.findAllByFilter(adminEventFilter).stream()
                 .map(Event::toEventShortDto)
                 .toList();
     }
@@ -86,16 +63,8 @@ public class EventServiceAdmin {
         return eventFullDto;
     }
 
-    /**
-     * Проверяет корректность диапазона дат для фильтрации событий.
-     *
-     * @param rangeStart Начальная дата диапазона
-     * @param rangeEnd   Конечная дата диапазона
-     * @throws BadRequestException если начальная дата позже конечной даты
-     */
-    private void validateEventDateRange(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
-        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
-            throw new BadRequestException("RangeStart must be before RangeEnd");
-        }
+
+    public void patchEvent(@NotNull Event event) {
+        eventJpaRepository.save(event);
     }
 }

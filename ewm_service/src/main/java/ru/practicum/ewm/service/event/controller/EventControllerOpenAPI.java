@@ -29,7 +29,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/events")
-public class EventControllerOpen {
+public class EventControllerOpenAPI {
 
     private final EventServiceOpen publicEventService;
 

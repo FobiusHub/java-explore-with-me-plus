@@ -16,7 +16,7 @@ public class AdminEventFilterRepositoryImpl implements AdminEventFilterRepositor
 
     private final EntityManager entityManager;
 
-    public List<Event> findAllByFilter(@NotNull AdminEventFilter adminEventFilter) {
+    public List<Event> findAllByFilter(@NotNull AdminEventFilterDto adminEventFilter) {
         Class<Event> entityClass = Event.class;
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = criteriaBuilder.createQuery(entityClass);

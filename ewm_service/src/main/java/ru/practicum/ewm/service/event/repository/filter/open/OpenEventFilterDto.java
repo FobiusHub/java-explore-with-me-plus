@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
-public record OpenEventFilter(
+public record OpenEventFilterDto(
         String text, // by annotation text (case-insensitive);
         List<Long> categories, // by List of category ids;
         Boolean paid, // by paid status (true or false);

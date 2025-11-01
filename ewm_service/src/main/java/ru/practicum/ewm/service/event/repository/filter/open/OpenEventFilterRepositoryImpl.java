@@ -15,12 +15,11 @@ public class OpenEventFilterRepositoryImpl implements OpenEventFilterRepository 
 
     private final EntityManager entityManager;
 
-    public List<Event> findAllByFilter(OpenEventFilter publicEventFilter) {
+    public List<Event> findAllByFilter(OpenEventFilterDto publicEventFilter) {
         Class<Event> entityClass = Event.class;
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = criteriaBuilder.createQuery(entityClass);
         Root<Event> root = query.from(entityClass);
-        query.select(root);
 
         List<Predicate> predicates = new ArrayList<>();
 
