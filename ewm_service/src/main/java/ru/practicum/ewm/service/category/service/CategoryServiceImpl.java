@@ -9,6 +9,7 @@ import ru.practicum.ewm.service.category.dto.NewCategoryDto;
 import ru.practicum.ewm.service.category.mapper.CategoryMapper;
 import ru.practicum.ewm.service.category.model.Category;
 import ru.practicum.ewm.service.category.repository.CategoryRepository;
+import ru.practicum.ewm.service.common.exception.InternalServerException;
 import ru.practicum.ewm.service.common.exception.NotFoundException;
 import ru.practicum.ewm.service.common.exception.ValidationException;
 
@@ -17,10 +18,10 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@Transactional
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
+    @Transactional
     @Override
     public CategoryDto create(NewCategoryDto newCategoryDto) {
         String name = newCategoryDto.getName();
@@ -30,26 +31,37 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     //ДОРАБОТАТЬ С УЧЕТОМ EVENT - 409 ЕСЛИ ЕСТЬ СВЯЗАННЫЕ СОБЫТИЯ
+    @Transactional
     @Override
     public void delete(long categoryId) {
         checkCategoryExist(categoryId);
         categoryRepository.deleteById(categoryId);
+        categoryRepository.flush(); //Без flush() удаление может быть отложено до конца транзакции
+        if (categoryRepository.existsById(categoryId)) {
+            log.warn("При удалении категории id: {} возникла ошибка", categoryId);
+            throw new InternalServerException("При удалении категории id: " + categoryId + " возникла ошибка");
+        }
     }
 
     //ДОРАБОТАТЬ С УЧЕТОМ EVENT - 409 ЕСЛИ ЕСТЬ СВЯЗАННЫЕ СОБЫТИЯ
+    @Transactional
     @Override
     public CategoryDto update(long categoryId, NewCategoryDto newCategoryDto) {
         String name = newCategoryDto.getName();
-        validateNameUnique(name);
 
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> {
                     log.warn("При запросе категории возникла ошибка: категория не найдена");
                     return new NotFoundException("Категория " + categoryId + " не найдена");
                 });
-        category.setName(name);
 
-        return CategoryMapper.toCategoryDto(categoryRepository.save(category));
+        if (category.getName().equals(name)) {
+            return CategoryMapper.toCategoryDto(category);
+        } else {
+            validateNameUnique(name);
+            category.setName(name);
+            return CategoryMapper.toCategoryDto(categoryRepository.save(category));
+        }
     }
 
     @Transactional(readOnly = true)

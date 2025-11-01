@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.service.common.exception.InternalServerException;
 import ru.practicum.ewm.service.common.exception.NotFoundException;
 import ru.practicum.ewm.service.common.exception.ValidationException;
 import ru.practicum.ewm.service.user.dto.UserDto;
@@ -16,10 +17,10 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@Transactional
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
+    @Transactional
     @Override
     public UserDto create(UserDto userDto) {
         String email = userDto.getEmail();
@@ -34,10 +35,16 @@ public class UserServiceImpl implements UserService {
         return userRepository.findUsers(ids, from, size).stream().map(UserMapper::toUserDto).toList();
     }
 
+    @Transactional
     @Override
     public void delete(long userId) {
         checkUserExist(userId);
         userRepository.deleteById(userId);
+        userRepository.flush(); //Без flush() удаление может быть отложено до конца транзакции
+        if (userRepository.existsById(userId)) {
+            log.warn("При удалении пользователя id: {} возникла ошибка", userId);
+            throw new InternalServerException("При удалении пользователя id: " + userId + " возникла ошибка");
+        }
     }
 
     @Transactional(readOnly = true)
