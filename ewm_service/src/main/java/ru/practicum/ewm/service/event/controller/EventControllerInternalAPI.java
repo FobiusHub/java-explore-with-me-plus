@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
-import ru.practicum.ewm.service.event.repository.filter.internal.InternalEventFilterDto;
+import ru.practicum.ewm.service.event.repository.filter.internal.InternalEventFilter;
 import ru.practicum.ewm.service.event.service.EventServiceInternal;
 
 import java.util.List;
@@ -27,10 +27,15 @@ public class EventControllerInternalAPI {
             @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(value = "size", defaultValue = "10") @Positive Integer size
     ) {
-        return eventServiceInternal.getEventsOfUserById(InternalEventFilterDto.builder()
+        return eventServiceInternal.getEventsOfUserById(InternalEventFilter.builder()
                 .userId(userId)
                 .from(from)
                 .size(size)
                 .build());
     }
+
+
+
+
+
 }

@@ -9,7 +9,7 @@ import ru.practicum.ewm.service.event.error.EventNotFoundException;
 import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
-import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilterDto;
+import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilter;
 import ru.practicum.ewm.service.event.repository.EventJpaRepository;
 
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
  * В отличие от публичного сервиса, позволяет работать с событиями в любом состоянии.
  *
  * @see EventJpaRepository
- * @see AdminEventFilterDto
+ * @see AdminEventFilter
  * @see Event
  */
 @Slf4j
@@ -38,7 +38,7 @@ public class EventServiceAdmin {
      * @throws BadRequestException если диапазон дат указан некорректно
      * @apiNote В отличие от публичного API, позволяет фильтровать по пользователям и состояниям
      */
-    public List<EventShortDto> getEventsFilteredBy(AdminEventFilterDto adminEventFilter
+    public List<EventShortDto> getEventsFilteredBy(AdminEventFilter adminEventFilter
     ) {
         return eventJpaRepository.findAllByFilter(adminEventFilter).stream()
                 .map(Event::toEventShortDto)

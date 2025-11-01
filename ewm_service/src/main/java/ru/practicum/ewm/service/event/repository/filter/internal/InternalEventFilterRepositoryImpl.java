@@ -17,7 +17,7 @@ public class InternalEventFilterRepositoryImpl implements InternalEventFilterRep
 
     private final EntityManager entityManager;
 
-    public List<Event> findAllByFilter(@NotNull InternalEventFilterDto internalEventFilter) {
+    public List<Event> findAllByFilter(@NotNull InternalEventFilter internalEventFilter) {
         Class<Event> entityClass = Event.class;
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = criteriaBuilder.createQuery(entityClass);

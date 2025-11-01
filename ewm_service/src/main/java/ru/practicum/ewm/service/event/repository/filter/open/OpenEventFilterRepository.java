@@ -9,7 +9,7 @@ import java.util.List;
  * Репозиторий для фильтрации событий в публичном API.
  * Предоставляет метод для поиска событий с применением различных фильтров.
  *
- * @see OpenEventFilterDto
+ * @see OpenEventFilter
  * @see Event
  */
 public interface OpenEventFilterRepository {
@@ -21,7 +21,7 @@ public interface OpenEventFilterRepository {
      * @param publicEventFilter объект с параметрами фильтрации
      * @return список событий, удовлетворяющих условиям фильтра
      *
-     * @see OpenEventFilterDto
+     * @see OpenEventFilter
      */
-    List<Event> findAllByFilter(OpenEventFilterDto publicEventFilter);
+    List<Event> findAllByFilter(OpenEventFilter publicEventFilter);
 }

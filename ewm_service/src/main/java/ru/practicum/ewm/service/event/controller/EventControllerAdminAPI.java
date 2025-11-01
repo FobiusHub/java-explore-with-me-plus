@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
-import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilterDto;
+import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilter;
 import ru.practicum.ewm.service.event.service.EventServiceAdmin;
 import ru.practicum.ewm.service.event.utill.DateTimeFormatUtil;
 
@@ -73,7 +73,7 @@ public class EventControllerAdminAPI {
         log.info("GET /admin/events with parameters: users={}, states={}, categories={}, rangeStart={}, rangeEnd={},  from={}, size={}",
                 userIds, states, categoryIds, rangeStart, rangeEnd, from, size);
 
-        List<EventShortDto> responseList = adminEventService.getEventsFilteredBy(AdminEventFilterDto.builder()
+        List<EventShortDto> responseList = adminEventService.getEventsFilteredBy(AdminEventFilter.builder()
                 .users(userIds)
                 .states(states)
                 .categories(categoryIds)

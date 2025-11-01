@@ -11,7 +11,7 @@ import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.repository.EventJpaRepository;
-import ru.practicum.ewm.service.event.repository.filter.open.OpenEventFilterDto;
+import ru.practicum.ewm.service.event.repository.filter.open.OpenEventFilter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,7 +49,7 @@ public class EventServiceOpen {
      * @return Список событий в кратком формате {@link EventShortDto}
      * @throws BadRequestException если диапазон дат указан некорректно
      * @apiNote Метод автоматически фильтрует только опубликованные события
-     * @see OpenEventFilterDto
+     * @see OpenEventFilter
      */
     public List<EventShortDto> getEventsFilteredBy(String text, // by annotation text (case-insensitive);
                                                    List<Long> categories, // by List of category ids;
@@ -63,7 +63,7 @@ public class EventServiceOpen {
     ) {
         validateEventDateRange(rangeStart, rangeEnd);
 
-        OpenEventFilterDto filter = OpenEventFilterDto.builder()
+        OpenEventFilter filter = OpenEventFilter.builder()
                 .text(text)
                 .categories(categories)
                 .paid(paid)

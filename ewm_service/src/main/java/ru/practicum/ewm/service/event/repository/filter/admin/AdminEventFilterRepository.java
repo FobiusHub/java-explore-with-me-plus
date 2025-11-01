@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface AdminEventFilterRepository {
-        List<Event> findAllByFilter(AdminEventFilterDto adminEventFilter);
+        List<Event> findAllByFilter(AdminEventFilter adminEventFilter);
 }
