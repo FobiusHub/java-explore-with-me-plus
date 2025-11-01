@@ -1,4 +1,4 @@
-package ru.practicum.ewm.service.event.error;
+package ru.practicum.ewm.service.event.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

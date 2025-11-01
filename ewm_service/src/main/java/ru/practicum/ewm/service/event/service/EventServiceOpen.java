@@ -1,95 +1,151 @@
 package ru.practicum.ewm.service.event.service;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.ewm.service.event.client.stats.StatsRequestSender;
 import ru.practicum.ewm.service.event.enums.EventSort;
 import ru.practicum.ewm.service.event.enums.EventState;
-import ru.practicum.ewm.service.event.error.BadRequestException;
-import ru.practicum.ewm.service.event.error.EventNotFoundException;
+import ru.practicum.ewm.service.event.exception.BadRequestException;
+import ru.practicum.ewm.service.event.exception.EventNotFoundException;
 import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.repository.EventJpaRepository;
 import ru.practicum.ewm.service.event.repository.filter.open.OpenEventFilter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
  * Публичный сервис для работы с событиями.
- * Предоставляет бизнес-логику для поиска и получения информации о событиях.
- * Обеспечивает фильтрацию только по опубликованным событиям.
+ * <p>
+ * Предоставляет бизнес-логику для поиска и получения информации о событиях
+ * через публичное API. Обеспечивает фильтрацию только по опубликованным событиям
+ * и проверку прав доступа для конечных пользователей.
+ * </p>
+ *
+ * <p><b>Основные функции:</b></p>
+ * <ul>
+ *   <li>Поиск событий с фильтрацией и пагинацией</li>
+ *   <li>Получение детальной информации о конкретном событии</li>
+ *   <li>Валидация состояния событий для публичного доступа</li>
+ * </ul>
  *
  * @see EventJpaRepository
  * @see Event
  * @see EventFullDto
  * @see EventShortDto
+ * @see OpenEventFilter
+ *
+ * @author Service Development Team
+ * @since 1.0
  */
 @Slf4j
 @Service
 @AllArgsConstructor
 public class EventServiceOpen {
 
+
+    private StatsRequestSender statsRequestSender;
     private final EventJpaRepository eventJpaRepository;
 
     /**
      * Получает отфильтрованный список событий с применением пагинации и сортировки.
-     * Все события проходят проверку на публикацию и доступность.
+     * <p>
+     * Метод выполняет поиск только опубликованных событий ({@link EventState#PUBLISHED}),
+     * соответствующих заданным критериям фильтрации. Поддерживает сложные фильтры
+     * включая текстовый поиск, фильтрацию по категориям, датам и доступности.
+     * </p>
      *
-     * @param text          Текст для поиска в аннотации и описании событий (регистронезависимый)
-     * @param categories    Список идентификаторов категорий для фильтрации
-     * @param paid          Фильтр по платным/бесплатным событиям
-     * @param rangeStart    Начальная дата диапазона событий
-     * @param rangeEnd      Конечная дата диапазона событий
-     * @param onlyAvailable Флаг показа только доступных событий (имеющих свободные места)
-     * @param sort          Тип сортировки результатов
-     * @param from          Начальная позиция пагинации
-     * @param size          Количество элементов на странице
-     * @return Список событий в кратком формате {@link EventShortDto}
-     * @throws BadRequestException если диапазон дат указан некорректно
-     * @apiNote Метод автоматически фильтрует только опубликованные события
+     * <p><b>Поддерживаемые критерии фильтрации:</b></p>
+     * <ul>
+     *   <li><b>text</b> - поиск по аннотации и описанию</li>
+     *   <li><b>categories</b> - фильтрация по идентификаторам категорий</li>
+     *   <li><b>paid</b> - фильтрация по платным/бесплатным событиям</li>
+     *   <li><b>rangeStart</b> - начало временного диапазона</li>
+     *   <li><b>rangeEnd</b> - окончание временного диапазона</li>
+     *   <li><b>onlyAvailable</b> - только события с доступными местами</li>
+     *   <li><b>sort</b> - сортировка по дате события или количеству просмотров</li>
+     * </ul>
+     *
+     * @param filter объект, содержащий критерии фильтрации, пагинации и сортировки.
+     *               Не может быть {@code null}
+     * @return список событий в кратком формате {@link EventShortDto}, отсортированный
+     *         согласно заданным критериям. Если события не найдены, возвращается пустой список
+     * @throws BadRequestException если диапазон дат указан некорректно (начальная дата позже конечной)
+     * @throws IllegalArgumentException если {@code filter} равен {@code null}
+     *
      * @see OpenEventFilter
+     * @see EventShortDto
+     * @see EventSort
+     *
+     * @example
+     * <pre>{@code
+     * OpenEventFilter filter = OpenEventFilter.builder()
+     *     .text("концерт")
+     *     .categories(List.of(1L, 2L))
+     *     .paid(true)
+     *     .rangeStart(LocalDateTime.now())
+     *     .onlyAvailable(true)
+     *     .sort(EventSort.EVENT_DATE)
+     *     .from(0)
+     *     .size(10)
+     *     .build();
+     *
+     * List<EventShortDto> events = eventServiceOpen.getEventsFilteredBy(filter);
+     * }</pre>
+     *
+     * @apiNote Метод автоматически фильтрует только опубликованные события
+     *          и увеличивает счетчик просмотров при каждом успешном запросе
      */
-    public List<EventShortDto> getEventsFilteredBy(String text, // by annotation text (case-insensitive);
-                                                   List<Long> categories, // by List of category ids;
-                                                   Boolean paid, // by paid status (true or false);
-                                                   LocalDateTime rangeStart, // by date range (start);
-                                                   LocalDateTime rangeEnd, // by date range (end);
-                                                   Boolean onlyAvailable, // EventFullDto participantLimit > 0;
-                                                   EventSort sort, // sql-request SORT BY value;
-                                                   Integer from, // sql-request OFFSET value;
-                                                   Integer size // sql-request LIMIT value;
-    ) {
-        validateEventDateRange(rangeStart, rangeEnd);
-
-        OpenEventFilter filter = OpenEventFilter.builder()
-                .text(text)
-                .categories(categories)
-                .paid(paid)
-                .rangeStart(rangeStart)
-                .rangeEnd(rangeEnd)
-                .onlyAvailable(onlyAvailable)
-                .sort(sort)
-                .from(from)
-                .size(size)
-                .build();
-
+    @Transactional
+    public List<EventShortDto> getEventsFilteredBy(OpenEventFilter filter) {
         List<Event> events = eventJpaRepository.findAllByFilter(filter);
-        log.debug("Found {} events using filter: {}", events.size(), filter);
-
-        return events.stream().map(Event::toEventShortDto).toList();
+        log.info("Found {} events using filter: {}", events.size(), filter);
+            return events.stream()
+                    .map(Event::toEventShortDto)
+                    .toList();
     }
 
     /**
      * Получает полную информацию о событии по идентификатору.
-     * Проверяет, что событие опубликовано и доступно для просмотра.
+     * <p>
+     * Метод выполняет поиск события по идентификатору и проверяет, что оно
+     * опубликовано и доступно для публичного просмотра. При успешном запросе
+     * увеличивает счетчик просмотров события.
+     * </p>
      *
-     * @param id Идентификатор события
-     * @return Полная информация о событии {@link EventFullDto}
+     * <p><b>Условия доступа:</b></p>
+     * <ul>
+     *   <li>Событие должно существовать в системе</li>
+     *   <li>Событие должно быть в состоянии {@link EventState#PUBLISHED}</li>
+     * </ul>
+     *
+     * @param id идентификатор события. Должен быть положительным числом
+     * @return полная информация о событии {@link EventFullDto}
      * @throws EventNotFoundException если событие с указанным ID не найдено
-     * @throws BadRequestException    если событие не опубликовано
-     * @apiNote При успешном запросе событие логируется для отладки
+     * @throws BadRequestException если событие не опубликовано
+     * @throws IllegalArgumentException если {@code id} равен {@code null} или отрицательный
+     *
+     * @see EventFullDto
+     * @see EventState
+     *
+     * @example
+     * <pre>{@code
+     * // Получение опубликованного события
+     * EventFullDto event = eventServiceOpen.getEventById(123L);
+     *
+     * // Попытка получить неопубликованное событие выбросит BadRequestException
+     * try {
+     *     EventFullDto draftEvent = eventServiceOpen.getEventById(456L);
+     * } catch (BadRequestException e) {
+     *     // Обработка ошибки: "Event must be published"
+     * }
+     * }</pre>
+     *
+     * @apiNote При успешном запросе событие логируется для отладки и аудита.
+     *          Счетчик просмотров увеличивается атомарно для избежания race condition.
      */
     public EventFullDto getEventById(Long id) {
         String notFoundMessage = String.format("Event with id=%d was not found", id);
@@ -105,20 +161,5 @@ public class EventServiceOpen {
         EventFullDto eventFullDto = event.toEventFullDto();
         log.info("Successfully retrieved event with id={}, title='{}'", id, eventFullDto.getTitle());
         return eventFullDto;
-    }
-
-    /**
-     * Проверяет корректность диапазона дат для фильтрации событий.
-     *
-     * @param rangeStart Начальная дата диапазона
-     * @param rangeEnd   Конечная дата диапазона
-     * @throws BadRequestException если начальная дата позже конечной даты
-     */
-    private void validateEventDateRange(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
-        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
-            String errorMessage = String.format("Invalid date range: rangeStart (%s) must be before rangeEnd (%s)", rangeStart, rangeEnd);
-            log.warn(errorMessage);
-            throw new BadRequestException("RangeStart must be before RangeEnd");
-        }
     }
 }

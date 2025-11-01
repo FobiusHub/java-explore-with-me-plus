@@ -1,5 +1,6 @@
 package ru.practicum.ewm.service.event.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
@@ -7,9 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.service.event.client.stats.StatsRequestSender;
 import ru.practicum.ewm.service.event.enums.EventSort;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
+import ru.practicum.ewm.service.event.repository.filter.open.OpenEventFilter;
 import ru.practicum.ewm.service.event.service.EventServiceOpen;
 import ru.practicum.ewm.service.event.utill.DateTimeFormatUtil;
 
@@ -31,7 +34,8 @@ import java.util.List;
 @RequestMapping("/events")
 public class EventControllerOpenAPI {
 
-    private final EventServiceOpen publicEventService;
+    private StatsRequestSender statsRequestSender;
+    private final EventServiceOpen eventServiceOpen;
 
     /**
      * Получает список событий с применением фильтров и пагинации.
@@ -52,9 +56,14 @@ public class EventControllerOpenAPI {
      */
     @GetMapping
     public List<EventShortDto> getEventsFilteredBy(
-            @RequestParam(value = "text", required = false) String text,
-            @RequestParam(value = "categories", required = false) List<Long> categories,
-            @RequestParam(value = "paid", required = false) Boolean paid,
+            @RequestParam(value = "text", required = false)
+            String text,
+
+            @RequestParam(value = "categories", required = false)
+            List<Long> categories,
+
+            @RequestParam(value = "paid", required = false)
+            Boolean paid,
 
             @RequestParam(value = "rangeStart", required = false)
             @DateTimeFormat(pattern = DateTimeFormatUtil.DATE_TIME_FORMAT)
@@ -64,25 +73,41 @@ public class EventControllerOpenAPI {
             @DateTimeFormat(pattern = DateTimeFormatUtil.DATE_TIME_FORMAT)
             LocalDateTime rangeEnd,
 
-            @RequestParam(value = "onlyAvailable", required = false) Boolean onlyAvailable,
-            @RequestParam(value = "sort", required = false) EventSort sort,
-            @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(value = "size", defaultValue = "10") @Positive Integer size
+            @RequestParam(value = "onlyAvailable", required = false)
+            Boolean onlyAvailable,
+
+            @RequestParam(value = "sort", required = false)
+            EventSort sort,
+
+            @PositiveOrZero
+            @RequestParam(value = "from", defaultValue = "0")
+            Integer from,
+
+            @Positive
+            @RequestParam(value = "size", defaultValue = "10")
+            Integer size,
+
+            HttpServletRequest httpRequest
     ) {
-        log.info("GET /events with parameters: text={}, categories={}, paid={}, rangeStart={}, rangeEnd={}, onlyAvailable={}, sort={}, from={}, size={}",
+        log.info("GET /events with parameters: text={}, categories={}, paid={}, rangeStart={}, rangeEnd={}," +
+                        "onlyAvailable={}, sort={}, from={}, size={}",
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
 
-        List<EventShortDto> responseList = publicEventService.getEventsFilteredBy(
-                text,
-                categories,
-                paid,
-                rangeStart == null ? LocalDateTime.now() : rangeStart,
-                rangeEnd,
-                onlyAvailable,
-                sort,
-                from,
-                size
-        );
+        OpenEventFilter openEventFilter = OpenEventFilter.builder()
+                .text(text)
+                .categories(categories)
+                .paid(paid)
+                .rangeStart(rangeStart == null ? LocalDateTime.now() : rangeStart)
+                .rangeEnd(rangeEnd)
+                .onlyAvailable(onlyAvailable)
+                .sort(sort)
+                .from(from)
+                .size(size)
+                .build();
+
+        statsRequestSender.sendRequestToStatService(httpRequest);
+
+        List<EventShortDto> responseList = eventServiceOpen.getEventsFilteredBy(openEventFilter);
         log.info("GET /events response: found {} events", responseList.size());
         return responseList;
     }
@@ -93,15 +118,15 @@ public class EventControllerOpenAPI {
      *
      * @param id Идентификатор события (обязательный параметр)
      * @return Полная информация о событии {@link EventFullDto}
-     * @throws ru.practicum.ewm.service.event.error.EventNotFoundException если событие не найдено
-     * @throws ru.practicum.ewm.service.event.error.BadRequestException    если событие не опубликовано
+     * @throws ru.practicum.ewm.service.event.exception.EventNotFoundException если событие не найдено
+     * @throws ru.practicum.ewm.service.event.exception.BadRequestException    если событие не опубликовано
      * @apiNote При каждом успешном запросе увеличивает счетчик просмотров события
      * @example GET /events/14
      */
     @GetMapping("/{id}")
     public EventFullDto getEventById(@PathVariable("id") @Positive Long id) {
         log.info("GET /events/{}", id);
-        EventFullDto event = publicEventService.getEventById(id);
+        EventFullDto event = eventServiceOpen.getEventById(id);
         log.info("GET /events/{} response: event '{}'", id, event.getTitle());
         return event;
     }

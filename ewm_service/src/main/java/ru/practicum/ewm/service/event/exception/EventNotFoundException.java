@@ -1,4 +1,4 @@
-package ru.practicum.ewm.service.event.error;
+package ru.practicum.ewm.service.event.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -21,13 +21,13 @@ public class EventNotFoundException extends RuntimeException {
      * Стандартное описание причины ошибки.
      * Соответствует спецификации API для случаев, когда объект не найден.
      */
-    private final String reason = "The required object was not found.";
+    private final String reason;
 
     /**
      * HTTP-статус, возвращаемый при возникновении этого исключения.
      * Всегда устанавливается в NOT_FOUND (404).
      */
-    private final HttpStatus status = HttpStatus.NOT_FOUND;
+    private final HttpStatus status;
 
     /**
      * Временная метка возникновения ошибки в стандартном формате.
@@ -35,7 +35,7 @@ public class EventNotFoundException extends RuntimeException {
      *
      * @see DateTimeFormatUtil#getLocalDateTimeStr()
      */
-    private final String timeStamp = DateTimeFormatUtil.getLocalDateTimeStr();
+    private final String timeStamp;
 
     /**
      * Создает новое исключение с указанным сообщением об ошибке.
@@ -44,5 +44,20 @@ public class EventNotFoundException extends RuntimeException {
      */
     public EventNotFoundException(String message) {
         super(message);
+        this.reason = "The required object was not found.";
+        this.status = HttpStatus.NOT_FOUND;
+        this.timeStamp = DateTimeFormatUtil.getLocalDateTimeStr();
+
+
+    }
+
+    @Override
+    public String toString() {
+        return "EventNotFoundException{" +
+                "status=" + getStatus() +
+                ", reason='" + getReason() +
+                ", message='" + getMessage() +
+                ", timeStamp='" + getTimeStamp() +
+                '}';
     }
 }

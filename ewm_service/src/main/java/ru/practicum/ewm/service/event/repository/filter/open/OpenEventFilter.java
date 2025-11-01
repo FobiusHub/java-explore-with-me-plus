@@ -1,5 +1,6 @@
 package ru.practicum.ewm.service.event.repository.filter.open;
 
+import jakarta.validation.constraints.AssertTrue;
 import lombok.Builder;
 import ru.practicum.ewm.service.event.enums.EventSort;
 
@@ -18,4 +19,11 @@ public record OpenEventFilter(
         Integer from, // sql-request OFFSET value;
         Integer size // sql-request LIMIT value;
 ) {
+    @AssertTrue(message = "RangeStart must be before RangeEnd")
+    private boolean isValidDateRange() {
+        if (rangeStart != null && rangeEnd != null) {
+            return rangeStart.isBefore(rangeEnd);
+        }
+        return true;
+    }
 }

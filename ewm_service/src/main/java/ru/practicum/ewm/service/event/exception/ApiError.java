@@ -1,4 +1,4 @@
-package ru.practicum.ewm.service.event.error;
+package ru.practicum.ewm.service.event.exception;
 
 import lombok.*;
 import org.springframework.http.HttpStatus;
@@ -18,8 +18,6 @@ import java.util.List;
  * @see HttpStatus
  * @see Error
  */
-@Getter
-@Setter
 @Builder
 public record ApiError(
 		/*

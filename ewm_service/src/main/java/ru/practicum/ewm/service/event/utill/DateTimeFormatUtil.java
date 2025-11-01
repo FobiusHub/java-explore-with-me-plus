@@ -39,6 +39,10 @@ public class DateTimeFormatUtil {
      * @example "2024-01-15 14:30:25"
      */
     public static String getLocalDateTimeStr() {
-        return LocalDateTime.now().format(DateTimeFormatUtil.DATE_TIME_FORMATTER);
+        return LocalDateTime.now().format(DATE_TIME_FORMATTER);
+    }
+
+    public static LocalDateTime getLocalDateTime(){
+        return LocalDateTime.now();
     }
 }

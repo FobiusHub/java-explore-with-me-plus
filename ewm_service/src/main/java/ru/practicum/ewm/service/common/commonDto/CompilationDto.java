@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import ru.practicum.event.model.dto.EventShortDto;
+import ru.practicum.ewm.service.event.dto.EventShortDto;
 
 @Getter
 @Setter
