@@ -6,6 +6,7 @@ import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.repository.EventJpaRepository;
 import ru.practicum.ewm.service.event.repository.filter.internal.InternalEventFilter;
+import ru.practicum.ewm.service.event.utill.EventMapper;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class EventServiceInternal {
 
     public List<EventShortDto> getEventsOfUserById(InternalEventFilter internalEventFilterDto) {
         return eventJpaRepository.findAllByFilter(internalEventFilterDto).stream()
-                .map(Event::toEventShortDto)
+                .map(EventMapper::toEventShortDto)
                 .toList();
     }
 }

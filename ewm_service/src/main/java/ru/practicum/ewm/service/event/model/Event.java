@@ -2,31 +2,25 @@ package ru.practicum.ewm.service.event.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
-import ru.practicum.ewm.service.common.commonDto.Category;
+import ru.practicum.ewm.service.category.model.Category;
 import ru.practicum.ewm.service.event.enums.EventState;
-import ru.practicum.ewm.service.common.commonDto.CategoryDto;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.utill.DateTimeFormatUtil;
 import ru.practicum.ewm.service.user.dto.UserShortDto;
-import ru.practicum.ewm.service.user.mapper.UserMapper;
 import ru.practicum.ewm.service.user.model.User;
+import ru.practicum.ewm.service.category.dto.CategoryDto;
 
 import java.time.LocalDateTime;
 
 /**
- * Модель события в системе.
+ * Модель события.ы
  * Представляет собой основную сущность для хранения информации о мероприятиях.
  *
  * <p>Содержит полную информацию о событии, включая метаданные, настройки участия,
  * временные метки и связи с другими сущностями (категории, пользователи).</p>
- *
- * <p>Предоставляет методы преобразования в DTO для API.</p>
  *
  * @see EventState
  * @see CategoryDto
@@ -50,6 +44,7 @@ public class Event {
      * Уникальный идентификатор события.
      */
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
@@ -62,6 +57,8 @@ public class Event {
      * Категория события.
      * Определяет тематическую принадлежность мероприятия.
      */
+    @ManyToOne
+    @JoinColumn(name = "category_id")
     private Category category;
 
     /**
@@ -85,7 +82,7 @@ public class Event {
 
     /**
      * Дата и время проведения события в формате гггг-ММ-дд ЧЧ:мм:сс.
-     * Определяет когда состоится мероприятие.
+     * Определяет, когда состоится мероприятие.
      */
     @JsonFormat(pattern = DateTimeFormatUtil.DATE_TIME_FORMAT)
     private LocalDateTime eventDate;
@@ -94,13 +91,15 @@ public class Event {
      * Инициатор события.
      * Пользователь, создавший мероприятие.
      */
-    @OneToMany()
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User initiator;
 
     /**
      * Местоположение события.
      * Содержит географические координаты проведения.
      */
+    @Embedded
     private Location location;
 
     /**
@@ -149,49 +148,4 @@ public class Event {
      * Увеличивается при каждом просмотре детальной страницы.
      */
     private Long views;
-
-    /**
-     * Преобразует сущность события в полное DTO для API.
-     *
-     * @return объект {@link EventFullDto} со всей информацией о событии
-     */
-    public EventFullDto toEventFullDto() {
-        return EventFullDto.builder()
-                .id(id)
-                .annotation(annotation)
-                .category(category.toCategoryDto())
-                .confirmedRequests(confirmedRequests)
-                .createdOn(createdOn)
-                .description(description)
-                .eventDate(eventDate)
-                .initiator(UserMapper.toUserShortDto(initiator))
-                .location(location)
-                .paid(paid)
-                .participantLimit(participantLimit)
-                .publishedOn(publishedOn)
-                .requestModeration(requestModeration)
-                .state(state)
-                .title(title)
-                .views(views)
-                .build();
-    }
-
-    /**
-     * Преобразует сущность события в краткое DTO для API.
-     * Содержит только основную информацию для списков и предпросмотра.
-     *
-     * @return объект {@link EventShortDto} с основной информацией о событии
-     */
-    public EventShortDto toEventShortDto() {
-        return EventShortDto.builder()
-                .annotation(annotation)
-                .category(category.toCategoryDto())
-                .confirmedRequests(confirmedRequests)
-                .eventDate(eventDate)
-                .initiator(UserMapper.toUserShortDto(initiator))
-                .paid(paid)
-                .title(title)
-                .views(views)
-                .build();
-    }
 }

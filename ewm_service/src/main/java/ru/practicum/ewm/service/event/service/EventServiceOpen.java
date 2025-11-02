@@ -1,5 +1,6 @@
 package ru.practicum.ewm.service.event.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.repository.EventJpaRepository;
 import ru.practicum.ewm.service.event.repository.filter.open.OpenEventFilter;
+import ru.practicum.ewm.service.event.utill.EventMapper;
 
 import java.util.List;
 
@@ -32,13 +34,12 @@ import java.util.List;
  *   <li>Валидация состояния событий для публичного доступа</li>
  * </ul>
  *
+ * @author Service Development Team
  * @see EventJpaRepository
  * @see Event
  * @see EventFullDto
  * @see EventShortDto
  * @see OpenEventFilter
- *
- * @author Service Development Team
  * @since 1.0
  */
 @Slf4j
@@ -72,16 +73,10 @@ public class EventServiceOpen {
      * @param filter объект, содержащий критерии фильтрации, пагинации и сортировки.
      *               Не может быть {@code null}
      * @return список событий в кратком формате {@link EventShortDto}, отсортированный
-     *         согласно заданным критериям. Если события не найдены, возвращается пустой список
-     * @throws BadRequestException если диапазон дат указан некорректно (начальная дата позже конечной)
+     * согласно заданным критериям. Если события не найдены, возвращается пустой список
+     * @throws BadRequestException      если диапазон дат указан некорректно (начальная дата позже конечной)
      * @throws IllegalArgumentException если {@code filter} равен {@code null}
-     *
-     * @see OpenEventFilter
-     * @see EventShortDto
-     * @see EventSort
-     *
-     * @example
-     * <pre>{@code
+     * @example <pre>{@code
      * OpenEventFilter filter = OpenEventFilter.builder()
      *     .text("концерт")
      *     .categories(List.of(1L, 2L))
@@ -95,17 +90,21 @@ public class EventServiceOpen {
      *
      * List<EventShortDto> events = eventServiceOpen.getEventsFilteredBy(filter);
      * }</pre>
-     *
      * @apiNote Метод автоматически фильтрует только опубликованные события
-     *          и увеличивает счетчик просмотров при каждом успешном запросе
+     * и увеличивает счетчик просмотров при каждом успешном запросе
+     * @see OpenEventFilter
+     * @see EventShortDto
+     * @see EventSort
      */
     @Transactional
-    public List<EventShortDto> getEventsFilteredBy(OpenEventFilter filter) {
+    public List<EventShortDto> getEventsFilteredBy(OpenEventFilter filter, HttpServletRequest httpServletRequest) {
         List<Event> events = eventJpaRepository.findAllByFilter(filter);
         log.info("Found {} events using filter: {}", events.size(), filter);
-            return events.stream()
-                    .map(Event::toEventShortDto)
-                    .toList();
+        List<EventShortDto> responseList = events.stream()
+                .map(EventMapper::toEventShortDto)
+                .toList();
+        statsRequestSender.sendRequestToStatService(httpServletRequest);
+        return responseList;
     }
 
     /**
@@ -124,15 +123,10 @@ public class EventServiceOpen {
      *
      * @param id идентификатор события. Должен быть положительным числом
      * @return полная информация о событии {@link EventFullDto}
-     * @throws EventNotFoundException если событие с указанным ID не найдено
-     * @throws BadRequestException если событие не опубликовано
+     * @throws EventNotFoundException   если событие с указанным ID не найдено
+     * @throws BadRequestException      если событие не опубликовано
      * @throws IllegalArgumentException если {@code id} равен {@code null} или отрицательный
-     *
-     * @see EventFullDto
-     * @see EventState
-     *
-     * @example
-     * <pre>{@code
+     * @example <pre>{@code
      * // Получение опубликованного события
      * EventFullDto event = eventServiceOpen.getEventById(123L);
      *
@@ -143,9 +137,10 @@ public class EventServiceOpen {
      *     // Обработка ошибки: "Event must be published"
      * }
      * }</pre>
-     *
      * @apiNote При успешном запросе событие логируется для отладки и аудита.
-     *          Счетчик просмотров увеличивается атомарно для избежания race condition.
+     * Счетчик просмотров увеличивается атомарно для избежания race condition.
+     * @see EventFullDto
+     * @see EventState
      */
     public EventFullDto getEventById(Long id) {
         String notFoundMessage = String.format("Event with id=%d was not found", id);
@@ -158,7 +153,7 @@ public class EventServiceOpen {
             throw new BadRequestException("Event must be published");
         }
 
-        EventFullDto eventFullDto = event.toEventFullDto();
+        EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
         log.info("Successfully retrieved event with id={}, title='{}'", id, eventFullDto.getTitle());
         return eventFullDto;
     }

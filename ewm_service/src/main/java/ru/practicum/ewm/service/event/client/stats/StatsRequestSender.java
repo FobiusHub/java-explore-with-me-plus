@@ -16,10 +16,10 @@ public class StatsRequestSender {
     private final BaseClient client;
     private final EndPointHitDtoBuilder endPointHitDtoBuilder;
 
-    public void sendRequestToStatService(HttpServletRequest request) {
+    public void sendRequestToStatService(HttpServletRequest httpServletRequest) {
         try {
-            String ip = request.getRemoteAddr();
-            String uri = request.getRequestURI();
+            String ip = httpServletRequest.getRemoteAddr();
+            String uri = httpServletRequest.getRequestURI();
 
             log.debug("Sending stats for URI: {}, IP: {}", uri, ip);
 

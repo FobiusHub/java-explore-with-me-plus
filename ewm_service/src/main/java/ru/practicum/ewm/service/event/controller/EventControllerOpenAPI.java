@@ -34,7 +34,6 @@ import java.util.List;
 @RequestMapping("/events")
 public class EventControllerOpenAPI {
 
-    private StatsRequestSender statsRequestSender;
     private final EventServiceOpen eventServiceOpen;
 
     /**
@@ -87,7 +86,7 @@ public class EventControllerOpenAPI {
             @RequestParam(value = "size", defaultValue = "10")
             Integer size,
 
-            HttpServletRequest httpRequest
+            HttpServletRequest httpServletRequest
     ) {
         log.info("GET /events with parameters: text={}, categories={}, paid={}, rangeStart={}, rangeEnd={}," +
                         "onlyAvailable={}, sort={}, from={}, size={}",
@@ -105,9 +104,8 @@ public class EventControllerOpenAPI {
                 .size(size)
                 .build();
 
-        statsRequestSender.sendRequestToStatService(httpRequest);
 
-        List<EventShortDto> responseList = eventServiceOpen.getEventsFilteredBy(openEventFilter);
+        List<EventShortDto> responseList = eventServiceOpen.getEventsFilteredBy(openEventFilter, httpServletRequest);
         log.info("GET /events response: found {} events", responseList.size());
         return responseList;
     }

@@ -1,10 +1,12 @@
 package ru.practicum.ewm.service.event.client.stats;
 
 import lombok.Builder;
+import org.springframework.stereotype.Component;
 import ru.practicum.ewm.service.event.utill.DateTimeFormatUtil;
 import ru.practicum.ewm.stats.dto.EndpointHitDto;
 
 @Builder
+@Component
  class EndPointHitDtoBuilder {
     private final String app = "ewm-main-service";
 

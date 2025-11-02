@@ -9,6 +9,7 @@ import ru.practicum.ewm.service.event.exception.EventNotFoundException;
 import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
+import ru.practicum.ewm.service.event.utill.EventMapper;
 import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilter;
 import ru.practicum.ewm.service.event.repository.EventJpaRepository;
 
@@ -41,7 +42,7 @@ public class EventServiceAdmin {
     public List<EventShortDto> getEventsFilteredBy(AdminEventFilter adminEventFilter
     ) {
         return eventJpaRepository.findAllByFilter(adminEventFilter).stream()
-                .map(Event::toEventShortDto)
+                .map(EventMapper::toEventShortDto)
                 .toList();
     }
 
@@ -58,7 +59,7 @@ public class EventServiceAdmin {
         String messageENFE = String.format("Event with id=%d was not found", id);
         Event event = eventJpaRepository.findById(id).orElseThrow(() -> new EventNotFoundException(messageENFE));
 
-        EventFullDto eventFullDto = event.toEventFullDto();
+        EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
         log.info("GET /admin/event/{} response:{}", id, eventFullDto);
         return eventFullDto;
     }
