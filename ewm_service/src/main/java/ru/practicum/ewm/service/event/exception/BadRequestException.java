@@ -2,7 +2,7 @@ package ru.practicum.ewm.service.event.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
-import ru.practicum.ewm.service.event.utill.DateTimeFormatUtil;
+import ru.practicum.ewm.service.event.util.DateTimeFormatUtil;
 
 /**
  * Исключение, выбрасываемое при некорректном запросе к API.

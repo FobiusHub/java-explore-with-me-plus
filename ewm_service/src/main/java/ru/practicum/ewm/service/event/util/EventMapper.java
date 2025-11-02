@@ -1,11 +1,17 @@
-package ru.practicum.ewm.service.event.utill;
+package ru.practicum.ewm.service.event.util;
 
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import ru.practicum.ewm.service.category.dto.CategoryDto;
 import ru.practicum.ewm.service.category.mapper.CategoryMapper;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.model.Event;
+import ru.practicum.ewm.service.user.dto.UserShortDto;
 import ru.practicum.ewm.service.user.mapper.UserMapper;
 
+@Slf4j
+@AllArgsConstructor
 public class EventMapper {
 
     /**
@@ -15,12 +21,19 @@ public class EventMapper {
      * @return объект {@link EventShortDto} с основной информацией о событии
      */
     public static EventShortDto toEventShortDto(Event event) {
+
+        CategoryDto category = event.getCategory() == null ? null :
+                CategoryMapper.toCategoryDto(event.getCategory());
+
+        UserShortDto initiator = event.getInitiator() == null ? null :
+                UserMapper.toUserShortDto(event.getInitiator());
+
         return EventShortDto.builder()
                 .annotation(event.getAnnotation())
-                .category(CategoryMapper.toCategoryDto(event.getCategory()))
+                .category(category)
                 .confirmedRequests(event.getConfirmedRequests())
                 .eventDate(event.getEventDate())
-                .initiator(UserMapper.toUserShortDto(event.getInitiator()))
+                .initiator(initiator)
                 .paid(event.getPaid())
                 .title(event.getTitle())
                 .views(event.getViews())
@@ -34,15 +47,22 @@ public class EventMapper {
      * @return объект {@link EventFullDto} с основной информацией о событии
      */
     public static EventFullDto toEventFullDto(Event event) {
+
+        CategoryDto category = event.getCategory() == null ? null :
+                CategoryMapper.toCategoryDto(event.getCategory());
+
+        UserShortDto initiator = event.getInitiator() == null ? null :
+                UserMapper.toUserShortDto(event.getInitiator());
+
         return EventFullDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
-                .category(CategoryMapper.toCategoryDto(event.getCategory()))
+                .category(category)
                 .confirmedRequests(event.getConfirmedRequests())
                 .createdOn(event.getCreatedOn())
                 .description(event.getDescription())
                 .eventDate(event.getEventDate())
-                .initiator(UserMapper.toUserShortDto(event.getInitiator()))
+                .initiator(initiator)
                 .location(event.getLocation())
                 .paid(event.getPaid())
                 .participantLimit(event.getParticipantLimit())
@@ -53,4 +73,6 @@ public class EventMapper {
                 .views(event.getViews())
                 .build();
     }
+
+
 }

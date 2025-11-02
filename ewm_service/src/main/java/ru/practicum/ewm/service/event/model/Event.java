@@ -8,7 +8,7 @@ import ru.practicum.ewm.service.category.model.Category;
 import ru.practicum.ewm.service.event.enums.EventState;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
-import ru.practicum.ewm.service.event.utill.DateTimeFormatUtil;
+import ru.practicum.ewm.service.event.util.DateTimeFormatUtil;
 import ru.practicum.ewm.service.user.dto.UserShortDto;
 import ru.practicum.ewm.service.user.model.User;
 import ru.practicum.ewm.service.category.dto.CategoryDto;

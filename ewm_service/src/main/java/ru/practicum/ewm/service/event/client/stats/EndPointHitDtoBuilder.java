@@ -2,8 +2,9 @@ package ru.practicum.ewm.service.event.client.stats;
 
 import lombok.Builder;
 import org.springframework.stereotype.Component;
-import ru.practicum.ewm.service.event.utill.DateTimeFormatUtil;
 import ru.practicum.ewm.stats.dto.EndpointHitDto;
+
+import java.time.LocalDateTime;
 
 @Builder
 @Component
@@ -15,7 +16,7 @@ import ru.practicum.ewm.stats.dto.EndpointHitDto;
         endpointHitDto.setApp(app);
         endpointHitDto.setUri(uri);
         endpointHitDto.setIp(ip);
-        endpointHitDto.setTimestamp(DateTimeFormatUtil.getLocalDateTime());
+        endpointHitDto.setTimestamp(LocalDateTime.now());
 
         return endpointHitDto;
     }

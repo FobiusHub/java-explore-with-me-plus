@@ -8,13 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.service.event.client.stats.StatsRequestSender;
 import ru.practicum.ewm.service.event.enums.EventSort;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.repository.filter.open.OpenEventFilter;
 import ru.practicum.ewm.service.event.service.EventServiceOpen;
-import ru.practicum.ewm.service.event.utill.DateTimeFormatUtil;
+import ru.practicum.ewm.service.event.util.DateTimeFormatUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;

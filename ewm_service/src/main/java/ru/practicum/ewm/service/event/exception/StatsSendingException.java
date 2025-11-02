@@ -3,7 +3,7 @@
 //import lombok.Getter;
 //import org.springframework.http.HttpStatus;
 //import org.springframework.http.HttpStatusCode;
-//import ru.practicum.ewm.service.event.utill.DateTimeFormatUtil;
+//import ru.practicum.ewm.service.event.util.DateTimeFormatUtil;
 //
 //@Getter
 //public class StatsSendingException extends RuntimeException {

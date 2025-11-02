@@ -1,4 +1,4 @@
-package ru.practicum.ewm.service.event.utill;
+package ru.practicum.ewm.service.event.util;
 
 import lombok.Getter;
 
@@ -40,9 +40,5 @@ public class DateTimeFormatUtil {
      */
     public static String getLocalDateTimeStr() {
         return LocalDateTime.now().format(DATE_TIME_FORMATTER);
-    }
-
-    public static LocalDateTime getLocalDateTime(){
-        return LocalDateTime.now();
     }
 }

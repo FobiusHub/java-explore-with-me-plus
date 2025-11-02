@@ -9,9 +9,9 @@ import ru.practicum.ewm.service.event.exception.EventNotFoundException;
 import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
-import ru.practicum.ewm.service.event.utill.EventMapper;
+import ru.practicum.ewm.service.event.util.EventMapper;
 import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilter;
-import ru.practicum.ewm.service.event.repository.EventJpaRepository;
+import ru.practicum.ewm.service.event.repository.EventRepository;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ import java.util.List;
  * Предоставляет функциональность для управления событиями с расширенными правами доступа.
  * В отличие от публичного сервиса, позволяет работать с событиями в любом состоянии.
  *
- * @see EventJpaRepository
+ * @see EventRepository
  * @see AdminEventFilter
  * @see Event
  */
@@ -29,7 +29,7 @@ import java.util.List;
 @AllArgsConstructor
 public class EventServiceAdmin {
 
-    private final EventJpaRepository eventJpaRepository;
+    private final EventRepository eventJpaRepository;
 
     /**
      * Получает отфильтрованный список событий для административной панели.

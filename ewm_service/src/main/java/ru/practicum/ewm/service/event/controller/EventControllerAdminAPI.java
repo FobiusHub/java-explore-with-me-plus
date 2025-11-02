@@ -13,7 +13,7 @@ import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilter;
 import ru.practicum.ewm.service.event.service.EventServiceAdmin;
-import ru.practicum.ewm.service.event.utill.DateTimeFormatUtil;
+import ru.practicum.ewm.service.event.util.DateTimeFormatUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -13,9 +13,9 @@ import ru.practicum.ewm.service.event.exception.EventNotFoundException;
 import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
-import ru.practicum.ewm.service.event.repository.EventJpaRepository;
+import ru.practicum.ewm.service.event.repository.EventRepository;
 import ru.practicum.ewm.service.event.repository.filter.open.OpenEventFilter;
-import ru.practicum.ewm.service.event.utill.EventMapper;
+import ru.practicum.ewm.service.event.util.EventMapper;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ import java.util.List;
  * </ul>
  *
  * @author Service Development Team
- * @see EventJpaRepository
+ * @see EventRepository
  * @see Event
  * @see EventFullDto
  * @see EventShortDto
@@ -49,7 +49,7 @@ public class EventServiceOpen {
 
 
     private StatsRequestSender statsRequestSender;
-    private final EventJpaRepository eventJpaRepository;
+    private final EventRepository eventJpaRepository;
 
     /**
      * Получает отфильтрованный список событий с применением пагинации и сортировки.

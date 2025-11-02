@@ -18,7 +18,7 @@ import ru.practicum.ewm.service.event.repository.filter.open.OpenEventFilterRepo
  * @see Event
  */
 @Repository
-public interface EventJpaRepository extends JpaRepository<Event, Long>,
+public interface EventRepository extends JpaRepository<Event, Long>,
         OpenEventFilterRepository,
         AdminEventFilterRepository,
         InternalEventFilterRepository {
