@@ -31,7 +31,7 @@ public class NewEventDto {
 
     @NotNull
     @Future
-    @JsonFormat(pattern = DateTimeFormatUtil.DATE_TIME_FORMAT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateTimeFormatUtil.DATE_TIME_FORMAT)
     private LocalDateTime eventDate;
 
     @NotNull

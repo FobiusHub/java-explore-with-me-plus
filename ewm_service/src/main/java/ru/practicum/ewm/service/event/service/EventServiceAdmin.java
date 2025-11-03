@@ -56,8 +56,8 @@ public class EventServiceAdmin {
      * @apiNote Возвращает события в любом состоянии (включая неопубликованные)
      */
     public EventFullDto getEventById(Long id) {
-        String messageENFE = String.format("Event with id=%d was not found", id);
-        Event event = eventJpaRepository.findById(id).orElseThrow(() -> new EventNotFoundException(messageENFE));
+        String message = String.format("Event with id=%d was not found", id);
+        Event event = eventJpaRepository.findById(id).orElseThrow(() -> new EventNotFoundException(message));
 
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
         log.info("GET /admin/event/{} response:{}", id, eventFullDto);

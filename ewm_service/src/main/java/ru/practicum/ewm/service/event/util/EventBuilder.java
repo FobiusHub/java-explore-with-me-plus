@@ -63,7 +63,7 @@ public class EventBuilder {
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> {
                     log.warn("При запросе данных пользователя возникла ошибка: Категория id={} не найдена", categoryId);
-                    return new NotFoundException("Категория id=" + categoryId + " не найден");
+                    return new NotFoundException("Категория id=" + categoryId + " не найдена");
                 });
     }
 }

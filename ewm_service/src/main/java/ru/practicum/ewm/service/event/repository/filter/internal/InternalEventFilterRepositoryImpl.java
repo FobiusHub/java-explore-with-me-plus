@@ -17,7 +17,7 @@ public class InternalEventFilterRepositoryImpl implements InternalEventFilterRep
 
     private final EntityManager entityManager;
 
-    public List<Event> findAllByFilter(@NotNull InternalEventFilter internalEventFilter) {
+    public List<Event> findByFilter(@NotNull InternalEventFilter internalEventFilter) {
         Class<Event> entityClass = Event.class;
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = criteriaBuilder.createQuery(entityClass);
@@ -29,6 +29,12 @@ public class InternalEventFilterRepositoryImpl implements InternalEventFilterRep
         if (internalEventFilter.userId() != null) {
             Long userId = internalEventFilter.userId();
             Predicate predicate = criteriaBuilder.equal(root.get("initiator").get("id"), userId);
+            predicates.add(predicate);
+        }
+
+        if (internalEventFilter.eventId() != null) {
+            Long eventId = internalEventFilter.eventId();
+            Predicate predicate = criteriaBuilder.equal(root.get("id"), eventId);
             predicates.add(predicate);
         }
 
@@ -48,7 +54,6 @@ public class InternalEventFilterRepositoryImpl implements InternalEventFilterRep
         if (internalEventFilter.size() != null) {
             typedQuery.setMaxResults(internalEventFilter.size());
         }
-
         return typedQuery.getResultList();
     }
 }
