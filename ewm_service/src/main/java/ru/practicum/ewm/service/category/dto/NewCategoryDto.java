@@ -7,6 +7,6 @@ import lombok.Data;
 @Data
 public class NewCategoryDto {
     @NotBlank(message = "Название должно быть указано")
-    @Size(max = 50, message = "Максимальная длина 50")
+    @Size(min = 1,max = 50, message = "Максимальная длина 50")
     private String name;
 }
