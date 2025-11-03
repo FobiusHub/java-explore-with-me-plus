@@ -71,7 +71,7 @@ public class Event {
      * Дата и время создания события.
      * Форматируется в стандартном формате "yyyy-MM-dd HH:mm:ss".
      */
-    @JsonFormat(pattern = DateTimeFormatUtil.DATE_TIME_FORMAT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdOn;
 
     /**
@@ -84,7 +84,7 @@ public class Event {
      * Дата и время проведения события в формате гггг-ММ-дд ЧЧ:мм:сс.
      * Определяет, когда состоится мероприятие.
      */
-    @JsonFormat(pattern = DateTimeFormatUtil.DATE_TIME_FORMAT)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
     /**

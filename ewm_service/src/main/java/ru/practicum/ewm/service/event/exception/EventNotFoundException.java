@@ -1,5 +1,6 @@
 package ru.practicum.ewm.service.event.exception;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import ru.practicum.ewm.service.event.util.DateTimeFormatUtil;
@@ -35,6 +36,7 @@ public class EventNotFoundException extends RuntimeException {
      *
      * @see DateTimeFormatUtil#getLocalDateTimeStr()
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private final String timeStamp;
 
     /**
