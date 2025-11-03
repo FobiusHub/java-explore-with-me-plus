@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import ru.practicum.ewm.service.event.model.Location;
+import ru.practicum.ewm.service.event.util.DateTimeFormatUtil;
 
 import java.time.LocalDateTime;
 
@@ -22,7 +23,7 @@ public class NewEventDto {
 
     @NotNull
     @Positive
-    private Long categoryId;
+    private Long category;
 
     @NotBlank
     @Size(min = 20, max = 7000)
@@ -30,7 +31,7 @@ public class NewEventDto {
 
     @NotNull
     @Future
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateTimeFormatUtil.DATE_TIME_FORMAT)
     private LocalDateTime eventDate;
 
     @NotNull

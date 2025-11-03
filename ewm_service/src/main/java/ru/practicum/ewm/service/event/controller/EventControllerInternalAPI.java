@@ -63,9 +63,7 @@ public class EventControllerInternalAPI {
             @PathVariable("userId") @Positive @NotNull Long userId,
             @PathVariable("eventId") @Positive @NotNull Long eventId
     ) {
-        return eventServiceInternal.getEventOfUserBy(InternalEventFilter.builder()
-                .userId(userId)
-                .eventId(eventId)
-                .build());
+        //To-Do Дописать после реализации Request
+        return null;
     }
 }

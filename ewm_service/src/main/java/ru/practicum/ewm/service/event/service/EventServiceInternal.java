@@ -36,7 +36,7 @@ public class EventServiceInternal {
         Long userId = newEventDto.getInitiatorId();
         Event eventToSave = eventBuilder.buildEventBy(newEventDto);
         Event savedEvent = eventRepository.save(eventToSave);
-        log.info("GET /users/{}/events with body:{}", userId, newEventDto);
+        log.info("GET /users/{}/events response:{}", userId, savedEvent);
         return EventMapper.toEventFullDto(savedEvent);
     }
 

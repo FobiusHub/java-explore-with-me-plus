@@ -26,13 +26,27 @@ public class EventBuilder {
         Long initiatorId = newEventDto.getInitiatorId();
         User initiator = getUser(initiatorId);
 
-        Long categoryId = newEventDto.getCategoryId();
+        Long categoryId = newEventDto.getCategory();
         Category category = getCategory(categoryId);
 
         long DEFAULT_CONFIRMED_REQUESTS = 0L;
         long DEFAULT_VIEWS = 0L;
-        return Event.builder().annotation(newEventDto.getAnnotation()).category(category).confirmedRequests(DEFAULT_CONFIRMED_REQUESTS).createdOn(LocalDateTime.now()).description(newEventDto.getDescription()).eventDate(newEventDto.getEventDate()).initiator(initiator).location(newEventDto.getLocation()).paid(newEventDto.getPaid()).participantLimit(newEventDto.getParticipantLimit()).publishedOn(null).requestModeration(newEventDto.getRequestModeration()).state(EventState.PENDING).title(newEventDto.getTitle()).views(DEFAULT_VIEWS).build();
-
+        return Event.builder()
+                .annotation(newEventDto.getAnnotation())
+                .category(category)
+                .confirmedRequests(DEFAULT_CONFIRMED_REQUESTS)
+                .createdOn(LocalDateTime.now())
+                .description(newEventDto.getDescription())
+                .eventDate(newEventDto.getEventDate())
+                .initiator(initiator)
+                .location(newEventDto.getLocation())
+                .paid(newEventDto.getPaid())
+                .participantLimit(newEventDto.getParticipantLimit())
+                .publishedOn(null) //устанавливается после модерации
+                .requestModeration(newEventDto.getRequestModeration())
+                .state(EventState.PENDING)
+                .title(newEventDto.getTitle())
+                .views(DEFAULT_VIEWS).build();
     }
 
     private User getUser(Long userId) {

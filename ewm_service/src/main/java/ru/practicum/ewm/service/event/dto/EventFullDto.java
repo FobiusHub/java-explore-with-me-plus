@@ -1,10 +1,12 @@
 package ru.practicum.ewm.service.event.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import ru.practicum.ewm.service.category.dto.CategoryDto;
 import ru.practicum.ewm.service.event.enums.EventState;
 import ru.practicum.ewm.service.event.model.Location;
+import ru.practicum.ewm.service.event.util.DateTimeFormatUtil;
 import ru.practicum.ewm.service.user.dto.UserShortDto;
 
 import java.time.LocalDateTime;
@@ -52,6 +54,7 @@ public class EventFullDto {
     /**
      * Дата и время создания события
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateTimeFormatUtil.DATE_TIME_FORMAT)
     private LocalDateTime createdOn;
 
     /**
@@ -62,6 +65,7 @@ public class EventFullDto {
     /**
      * Дата и время проведения события
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateTimeFormatUtil.DATE_TIME_FORMAT)
     private LocalDateTime eventDate;
 
     /**
@@ -88,6 +92,7 @@ public class EventFullDto {
     /**
      * Дата и время публикации события
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateTimeFormatUtil.DATE_TIME_FORMAT)
     private LocalDateTime publishedOn;
 
     /**
