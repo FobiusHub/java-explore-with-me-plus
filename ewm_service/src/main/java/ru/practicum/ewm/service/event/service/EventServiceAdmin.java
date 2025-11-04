@@ -1,5 +1,6 @@
 package ru.practicum.ewm.service.event.service;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,7 @@ public class EventServiceAdmin {
      */
     public List<EventShortDto> getEventsFilteredBy(AdminEventFilter adminEventFilter
     ) {
+
         return eventJpaRepository.findAllByFilter(adminEventFilter).stream()
                 .map(EventMapper::toEventShortDto)
                 .toList();
@@ -62,6 +64,13 @@ public class EventServiceAdmin {
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
         log.info("GET /admin/event/{} response:{}", id, eventFullDto);
         return eventFullDto;
+    }
+
+    @AssertTrue (message = "Value of user id must be positive")
+    private boolean validateUserId(Long userId) {
+        if (userId != null)
+            return userId > 0;
+        return true;
     }
 
 

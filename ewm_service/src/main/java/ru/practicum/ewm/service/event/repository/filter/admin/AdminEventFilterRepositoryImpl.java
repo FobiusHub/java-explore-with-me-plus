@@ -5,7 +5,9 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import ru.practicum.ewm.service.category.model.Category;
 import ru.practicum.ewm.service.event.model.Event;
+import ru.practicum.ewm.service.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,28 +23,35 @@ public class AdminEventFilterRepositoryImpl implements AdminEventFilterRepositor
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = criteriaBuilder.createQuery(entityClass);
         Root<Event> root = query.from(entityClass);
+
+        // Явные JOIN для связей
+        Join<Event, User> initiatorJoin = root.join("initiator", JoinType.INNER);
+        Join<Event, Category> categoryJoin = root.join("category", JoinType.INNER);
+
         query.select(root);
 
         List<Predicate> predicates = new ArrayList<>();
 
-        // Фильтрация по списку id-пользователей, чьи события нужно найти
-        if (adminEventFilter.users() != null && !adminEventFilter.users().isEmpty()) {
-            List<Long> users = adminEventFilter.users();
-            Predicate predicate = root.get("initiator").get("id").in(users);
-            predicates.add(predicate);
+        // Фильтрация по списку id-пользователей
+        if (adminEventFilter.users() != null) {
+            List<Long> users = adminEventFilter.users().stream().filter(id -> id > 0).toList();
+            if (!users.isEmpty()) {
+                Predicate predicate = initiatorJoin.get("id").in(users);
+                predicates.add(predicate);
+            }
         }
 
-        // Фильтрация по списку состояний в которых находятся искомые события
+        // Фильтрация по списку состояний
         if (adminEventFilter.states() != null && !adminEventFilter.states().isEmpty()) {
             List<String> states = adminEventFilter.states();
             Predicate predicate = root.get("state").in(states);
             predicates.add(predicate);
         }
 
-        // Фильтрация по категориям по id-списку категорий
+        // Фильтрация по категориям
         if (adminEventFilter.categories() != null && !adminEventFilter.categories().isEmpty()) {
             List<Long> categories = adminEventFilter.categories();
-            Predicate predicate = root.get("category").get("id").in(categories);
+            Predicate predicate = categoryJoin.get("id").in(categories);
             predicates.add(predicate);
         }
 
@@ -60,20 +69,22 @@ public class AdminEventFilterRepositoryImpl implements AdminEventFilterRepositor
             predicates.add(criteriaBuilder.lessThanOrEqualTo(expression, value));
         }
 
-        // Пагинация
+        // Применяем предикаты ДО создания запроса
+        if (!predicates.isEmpty()) {
+            query.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
+        }
+
+        // Создаем запрос
         TypedQuery<Event> typedQuery = entityManager.createQuery(query);
 
-        // количество событий, которые нужно пропустить для формирования текущего набора
+        // Пагинация
         if (adminEventFilter.from() != null) {
             typedQuery.setFirstResult(adminEventFilter.from());
         }
 
-        // количество событий в наборе
         if (adminEventFilter.size() != null) {
             typedQuery.setMaxResults(adminEventFilter.size());
         }
-
-        query.where(predicates.toArray(Predicate[]::new));
 
         return typedQuery.getResultList();
     }

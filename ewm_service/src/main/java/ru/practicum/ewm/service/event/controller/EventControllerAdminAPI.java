@@ -1,6 +1,5 @@
 package ru.practicum.ewm.service.event.controller;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
@@ -8,9 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
+import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilter;
 import ru.practicum.ewm.service.event.service.EventServiceAdmin;
 import ru.practicum.ewm.service.event.util.DateTimeFormatUtil;
@@ -104,7 +103,7 @@ public class EventControllerAdminAPI {
     @PatchMapping("/{id}")
     public String patchEventById(
             @PathVariable("id") Long id,
-            @RequestBody @NotNull Event event
+            @RequestBody Event event
     ) {
         log.info("PATCH /events/id with id={}", id);
         adminEventService.patchEvent(event);

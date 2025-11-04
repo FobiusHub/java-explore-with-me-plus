@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
@@ -39,9 +40,10 @@ public class EventControllerInternalAPI {
     }
 
     @PostMapping()
+    @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto postEvent(
             @PathVariable("userId") @Positive @NotNull Long userId,
-            @RequestBody @NotNull @Valid NewEventDto newEventDto) {
+            @RequestBody @Valid NewEventDto newEventDto) {
         log.info("GET /users/{}/events with body:{}", userId, newEventDto);
         newEventDto.setInitiatorId(userId);
         return eventServiceInternal.postEvent(newEventDto);

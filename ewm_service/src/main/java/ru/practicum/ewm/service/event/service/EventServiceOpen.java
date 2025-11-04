@@ -49,7 +49,7 @@ public class EventServiceOpen {
 
 
     private StatsRequestSender statsRequestSender;
-    private final EventRepository eventJpaRepository;
+    private final EventRepository eventRepository;
 
     /**
      * Получает отфильтрованный список событий с применением пагинации и сортировки.
@@ -98,7 +98,7 @@ public class EventServiceOpen {
      */
     @Transactional
     public List<EventShortDto> getEventsFilteredBy(OpenEventFilter filter, HttpServletRequest httpServletRequest) {
-        List<Event> events = eventJpaRepository.findAllByFilter(filter);
+        List<Event> events = eventRepository.findAllByFilter(filter);
         log.info("Found {} events using filter: {}", events.size(), filter);
         List<EventShortDto> responseList = events.stream()
                 .map(EventMapper::toEventShortDto)
@@ -143,16 +143,16 @@ public class EventServiceOpen {
      * @see EventState
      */
     public EventFullDto getEventById(Long id) {
-        String notFoundMessage = String.format("Event with id=%d was not found", id);
-        Event event = eventJpaRepository.findById(id).orElseThrow(() -> new EventNotFoundException(notFoundMessage));
+        String message = String.format("Event with id=%d was not found", id);
+
+        if (!eventRepository.existsById(id)){
+            throw new EventNotFoundException(message);
+        }
+        Event event = eventRepository.findById(id).orElseThrow(() -> new EventNotFoundException(message));
 
         if (event.getState() != EventState.PUBLISHED) {
-            String stateInfo = event.getState() != null ? event.getState().toString() : "null";
-            String errorMessage = String.format("Event with id=%d must be published. Current state: %s", id, stateInfo);
-            log.warn(errorMessage);
             throw new BadRequestException("Event must be published");
         }
-
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
         log.info("Successfully retrieved event with id={}, title='{}'", id, eventFullDto.getTitle());
         return eventFullDto;
