@@ -16,6 +16,7 @@ import ru.practicum.ewm.service.event.service.EventServiceOpen;
 import ru.practicum.ewm.service.event.util.DateTimeFormatUtil;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -91,9 +92,11 @@ public class EventControllerOpenAPI {
                         "onlyAvailable={}, sort={}, from={}, size={}",
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
 
+        List <Long> validatedCategories = validateListOfIds(categories);
+
         OpenEventFilter openEventFilter = OpenEventFilter.builder()
                 .text(text)
-                .categories(categories)
+                .categories(validatedCategories)
                 .paid(paid)
                 .rangeStart(rangeStart == null ? LocalDateTime.now() : rangeStart)
                 .rangeEnd(rangeEnd)
@@ -102,7 +105,6 @@ public class EventControllerOpenAPI {
                 .from(from)
                 .size(size)
                 .build();
-
 
         List<EventShortDto> responseList = eventServiceOpen.getEventsFilteredBy(openEventFilter, httpServletRequest);
         log.info("GET /events response: found {} events", responseList.size());
@@ -126,5 +128,12 @@ public class EventControllerOpenAPI {
         EventFullDto event = eventServiceOpen.getEventById(id);
         log.info("GET /events/{} response: event '{}'", id, event.getTitle());
         return event;
+    }
+
+    private List<Long> validateListOfIds(List<Long> idsList) {
+        if (idsList != null && !idsList.isEmpty()){
+            return idsList.stream().filter(id -> id >= 0).toList();
+        }
+        return new ArrayList<>();
     }
 }

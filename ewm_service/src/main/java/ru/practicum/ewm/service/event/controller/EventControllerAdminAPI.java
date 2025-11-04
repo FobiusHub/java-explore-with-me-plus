@@ -15,6 +15,7 @@ import ru.practicum.ewm.service.event.service.EventServiceAdmin;
 import ru.practicum.ewm.service.event.util.DateTimeFormatUtil;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -41,9 +42,9 @@ public class EventControllerAdminAPI {
      * Получает список событий с применением административных фильтров.
      * Поддерживает расширенные критерии поиска, недоступные в публичном API.
      *
-     * @param userIds     список идентификаторов инициаторов событий
+     * @param users     список идентификаторов инициаторов событий
      * @param states      список состояний событий
-     * @param categoryIds список идентификаторов категорий
+     * @param categories список идентификаторов категорий
      * @param rangeStart  Начальная дата диапазона для поиска событий (по умолчанию - текущее время)
      * @param rangeEnd    Конечная дата диапазона для поиска событий
      * @param from        Количество элементов, которые нужно пропустить для формирования текущего набора (по умолчанию 0)
@@ -54,9 +55,9 @@ public class EventControllerAdminAPI {
      */
     @GetMapping
     public List<EventShortDto> getEventsFilteredBy(
-            @RequestParam("users") List<Long> userIds,
+            @RequestParam("users") List<Long> users,
             @RequestParam("states") List<String> states,
-            @RequestParam("categories") List<Long> categoryIds,
+            @RequestParam("categories") List<Long> categories,
 
             @RequestParam("rangeStart")
             @DateTimeFormat(pattern = DateTimeFormatUtil.DATE_TIME_FORMAT)
@@ -70,12 +71,15 @@ public class EventControllerAdminAPI {
             @RequestParam(value = "size", defaultValue = "10") @Positive Integer size
     ) {
         log.info("GET /admin/events with parameters: users={}, states={}, categories={}, rangeStart={}, rangeEnd={},  from={}, size={}",
-                userIds, states, categoryIds, rangeStart, rangeEnd, from, size);
+                users, states, categories, rangeStart, rangeEnd, from, size);
+
+        List <Long> validatedUsers = validateListOfIds(users);
+        List <Long> validatedCategories = validateListOfIds(categories);
 
         List<EventShortDto> responseList = adminEventService.getEventsFilteredBy(AdminEventFilter.builder()
-                .users(userIds)
+                .users(validatedUsers)
                 .states(states)
-                .categories(categoryIds)
+                .categories(validatedCategories)
                 .rangeStart(rangeStart == null ? LocalDateTime.now() : rangeStart)
                 .rangeEnd(rangeEnd)
                 .from(from)
@@ -108,5 +112,12 @@ public class EventControllerAdminAPI {
         log.info("PATCH /events/id with id={}", id);
         adminEventService.patchEvent(event);
         return null;
+    }
+
+    private List<Long> validateListOfIds(List<Long> idsList) {
+        if (idsList != null && !idsList.isEmpty()){
+            return idsList.stream().filter(id -> id >= 0).toList();
+        }
+        return new ArrayList<>();
     }
 }
