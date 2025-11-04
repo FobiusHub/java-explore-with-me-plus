@@ -61,11 +61,10 @@ public class EventControllerInternalAPI {
     }
 
     @GetMapping("/{eventId}/requests")
-    public EventFullDto getRequestsOfUser(
+    public EventFullDto getRequestsOfUserBy(
             @PathVariable("userId") @Positive @NotNull Long userId,
             @PathVariable("eventId") @Positive @NotNull Long eventId
     ) {
-        //To-Do Дописать после реализации Request
-        return null;
+        return eventServiceInternal.getRequestOfUserBy(userId, eventId);
     }
 }

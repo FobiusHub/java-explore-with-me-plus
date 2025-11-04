@@ -24,8 +24,7 @@ public class AdminEventFilterRepositoryImpl implements AdminEventFilterRepositor
         CriteriaQuery<Event> query = criteriaBuilder.createQuery(entityClass);
         Root<Event> root = query.from(entityClass);
 
-        // Явные JOIN для связей
-        Join<Event, User> initiatorJoin = root.join("initiator", JoinType.INNER);
+        Join<Event, User> userJoin = root.join("initiator", JoinType.INNER);
         Join<Event, Category> categoryJoin = root.join("category", JoinType.INNER);
 
         query.select(root);
@@ -33,12 +32,10 @@ public class AdminEventFilterRepositoryImpl implements AdminEventFilterRepositor
         List<Predicate> predicates = new ArrayList<>();
 
         // Фильтрация по списку id-пользователей
-        if (adminEventFilter.users() != null) {
-            List<Long> users = adminEventFilter.users().stream().filter(id -> id > 0).toList();
-            if (!users.isEmpty()) {
-                Predicate predicate = initiatorJoin.get("id").in(users);
-                predicates.add(predicate);
-            }
+        if (adminEventFilter.users() != null && !adminEventFilter.users().isEmpty()) {
+            List<Long> users = adminEventFilter.users();
+            Predicate predicate = userJoin.get("id").in(users);
+            predicates.add(predicate);
         }
 
         // Фильтрация по списку состояний
