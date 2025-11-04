@@ -9,7 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
-import ru.practicum.ewm.service.event.model.Event;
+import ru.practicum.ewm.service.event.dto.UpdateEventDto;
 import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilter;
 import ru.practicum.ewm.service.event.service.EventServiceAdmin;
 import ru.practicum.ewm.service.event.util.DateTimeFormatUtil;
@@ -107,17 +107,20 @@ public class EventControllerAdminAPI {
     @PatchMapping("/{id}")
     public String patchEventById(
             @PathVariable("id") Long id,
-            @RequestBody Event event
+            @RequestBody UpdateEventDto event
     ) {
         log.info("PATCH /events/id with id={}", id);
+        event.setId(id);
         adminEventService.patchEvent(event);
         return null;
     }
 
     private List<Long> validateListOfIds(List<Long> idsList) {
         if (idsList != null && !idsList.isEmpty()) {
-            return idsList.stream().filter(id -> id >= 0).toList();
+            return idsList.stream().filter(id -> id > 0).toList();
         }
         return new ArrayList<>();
     }
+
+
 }
