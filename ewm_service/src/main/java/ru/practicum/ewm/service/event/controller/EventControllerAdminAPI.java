@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.dto.UpdateEventDto;
 import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilter;
@@ -73,8 +72,8 @@ public class EventControllerAdminAPI {
         log.info("GET /admin/events with parameters: users={}, states={}, categories={}, rangeStart={}, rangeEnd={},  from={}, size={}",
                 users, states, categories, rangeStart, rangeEnd, from, size);
 
-        List<Long> validatedUsers = validateListOfIds(users);
-        List<Long> validatedCategories = validateListOfIds(categories);
+        List<Long> validatedUsers = validateIdsList(users);
+        List<Long> validatedCategories = validateIdsList(categories);
 
         List<EventShortDto> responseList = adminEventService.getEventsFilteredBy(AdminEventFilter.builder()
                 .users(validatedUsers)
@@ -89,21 +88,6 @@ public class EventControllerAdminAPI {
         return responseList;
     }
 
-    /**
-     * Получает полную информацию о событии по идентификатору для административных целей.
-     * В отличие от публичного API, возвращает события в любом состоянии.
-     *
-     * @param id Идентификатор события
-     * @return Полная информация о событии {@link EventFullDto}
-     * @apiNote Возвращает события в любом состоянии (включая неопубликованные и отклоненные)
-     * @example GET /admin/events/123
-     */
-    @GetMapping("/{id}")
-    public EventFullDto getEventById(@PathVariable("id") Long id) {
-        log.info("GET /events/id with id={}", id);
-        return adminEventService.getEventById(id);
-    }
-
     @PatchMapping("/{id}")
     public String patchEventById(
             @PathVariable("id") Long id,
@@ -115,12 +99,10 @@ public class EventControllerAdminAPI {
         return null;
     }
 
-    private List<Long> validateListOfIds(List<Long> idsList) {
+    private List<Long> validateIdsList(List<Long> idsList) {
         if (idsList != null && !idsList.isEmpty()) {
             return idsList.stream().filter(id -> id > 0).toList();
         }
         return new ArrayList<>();
     }
-
-
 }

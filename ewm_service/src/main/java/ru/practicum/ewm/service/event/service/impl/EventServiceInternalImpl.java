@@ -12,6 +12,7 @@ import ru.practicum.ewm.service.event.exception.EventNotFoundException;
 import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.repository.EventRepository;
 import ru.practicum.ewm.service.event.repository.filter.internal.InternalEventFilter;
+import ru.practicum.ewm.service.event.repository.temp.RequestRepository;
 import ru.practicum.ewm.service.event.service.EventServiceInternal;
 import ru.practicum.ewm.service.event.util.EventBuilder;
 import ru.practicum.ewm.service.event.util.EventMapper;
@@ -27,6 +28,7 @@ public class EventServiceInternalImpl implements EventServiceInternal {
     private final EventBuilder eventBuilder;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
+    private final RequestRepository requestRepository;
 
     @Override
     public List<EventShortDto> getEventsOfUserBy(InternalEventFilter filter) {

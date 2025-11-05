@@ -1,6 +1,5 @@
 package ru.practicum.ewm.service.event.service;
 
-import jakarta.validation.constraints.NotNull;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.dto.NewEventDto;
@@ -15,5 +14,5 @@ public interface EventServiceInternal {
 
     EventFullDto getEventOfUserBy(InternalEventFilter filter);
 
-    EventFullDto getRequestOfUserBy(Long userId, @NotNull Long eventId);
+    EventFullDto getRequestOfUserBy(Long userId, Long eventId);
 }

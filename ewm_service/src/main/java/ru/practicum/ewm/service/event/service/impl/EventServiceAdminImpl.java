@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.practicum.ewm.service.category.model.Category;
 import ru.practicum.ewm.service.category.repository.CategoryRepository;
 import ru.practicum.ewm.service.common.exception.NotFoundException;
-import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.dto.UpdateEventDto;
 import ru.practicum.ewm.service.event.enums.EventState;
@@ -52,25 +51,6 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
     public List<EventShortDto> getEventsFilteredBy(AdminEventFilter adminEventFilter) {
 
         return eventRepository.findAllByFilter(adminEventFilter).stream().map(EventMapper::toEventShortDto).toList();
-    }
-
-    /**
-     * Получает полную информацию о событии по идентификатору для административных целей.
-     * В отличие от публичного API, возвращает события в любом состоянии.
-     *
-     * @param id Идентификатор события
-     * @return Полная информация о событии {@link EventFullDto}
-     * @throws EventNotFoundException если событие с указанным ID не найдено
-     * @apiNote Возвращает события в любом состоянии (включая неопубликованные)
-     */
-    @Override
-    public EventFullDto getEventById(Long id) {
-        String message = String.format("Event with id=%d was not found", id);
-        Event event = getEvent(id);
-
-        EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
-        log.info("GET /admin/event/{} response:{}", id, eventFullDto);
-        return eventFullDto;
     }
 
     @Override
