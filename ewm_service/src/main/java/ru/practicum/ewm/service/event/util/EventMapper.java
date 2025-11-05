@@ -29,6 +29,7 @@ public class EventMapper {
                 UserMapper.toUserShortDto(event.getInitiator());
 
         return EventShortDto.builder()
+                .id(event.getId())
                 .annotation(event.getAnnotation())
                 .category(category)
                 .confirmedRequests(event.getConfirmedRequests())
