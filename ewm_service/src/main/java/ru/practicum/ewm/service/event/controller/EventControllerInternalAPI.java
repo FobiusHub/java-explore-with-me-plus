@@ -67,4 +67,6 @@ public class EventControllerInternalAPI {
     ) {
         return eventServiceInternal.getRequestOfUserBy(userId, eventId);
     }
+
+
 }

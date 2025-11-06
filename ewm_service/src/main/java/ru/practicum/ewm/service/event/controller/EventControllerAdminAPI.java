@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.dto.UpdateEventDto;
+import ru.practicum.ewm.service.event.enums.EventState;
 import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilter;
 import ru.practicum.ewm.service.event.service.EventServiceAdmin;
 import ru.practicum.ewm.service.event.util.DateTimeFormatUtil;
@@ -55,7 +56,7 @@ public class EventControllerAdminAPI {
     @GetMapping
     public List<EventShortDto> getEventsFilteredBy(
             @RequestParam(name = "users", required = false) List<Long> users,
-            @RequestParam(name = "states", required = false) List<String> states,
+            @RequestParam(name = "states", required = false) List<EventState> states,
             @RequestParam(name = "categories", required = false) List<Long> categories,
 
             @RequestParam(name = "rangeStart", required = false)
@@ -76,9 +77,9 @@ public class EventControllerAdminAPI {
         List<Long> validatedCategories = validateIdsList(categories);
 
         List<EventShortDto> responseList = adminEventService.getEventsFilteredBy(AdminEventFilter.builder()
-                .users(validatedUsers)
+                .users(users)
                 .states(states)
-                .categories(validatedCategories)
+                .categories(users)
                 .rangeStart(rangeStart == null ? LocalDateTime.now() : rangeStart)
                 .rangeEnd(rangeEnd)
                 .from(from)

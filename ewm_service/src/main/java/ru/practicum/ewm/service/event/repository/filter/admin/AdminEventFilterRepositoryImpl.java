@@ -3,9 +3,9 @@ package ru.practicum.ewm.service.event.repository.filter.admin;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import ru.practicum.ewm.service.category.model.Category;
+import ru.practicum.ewm.service.event.enums.EventState;
 import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.user.model.User;
 
@@ -18,7 +18,7 @@ public class AdminEventFilterRepositoryImpl implements AdminEventFilterRepositor
 
     private final EntityManager entityManager;
 
-    public List<Event> findAllByFilter(@NotNull AdminEventFilter adminEventFilter) {
+    public List<Event> findAllByFilter(AdminEventFilter adminEventFilter) {
         Class<Event> entityClass = Event.class;
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = criteriaBuilder.createQuery(entityClass);
@@ -26,8 +26,6 @@ public class AdminEventFilterRepositoryImpl implements AdminEventFilterRepositor
 
         Join<Event, User> userJoin = root.join("initiator", JoinType.INNER);
         Join<Event, Category> categoryJoin = root.join("category", JoinType.INNER);
-
-        query.select(root);
 
         List<Predicate> predicates = new ArrayList<>();
 
@@ -40,8 +38,8 @@ public class AdminEventFilterRepositoryImpl implements AdminEventFilterRepositor
 
         // Фильтрация по списку состояний
         if (adminEventFilter.states() != null && !adminEventFilter.states().isEmpty()) {
-            List<String> states = adminEventFilter.states();
-            Predicate predicate = root.get("state").in(states);
+            List<EventState> eventStates = adminEventFilter.states();
+            Predicate predicate = root.get("state").in(eventStates);
             predicates.add(predicate);
         }
 
@@ -65,6 +63,11 @@ public class AdminEventFilterRepositoryImpl implements AdminEventFilterRepositor
             Expression<LocalDateTime> expression = root.get("eventDate");
             predicates.add(criteriaBuilder.lessThanOrEqualTo(expression, value));
         }
+
+        query.select(root)
+                .where(predicates.toArray(Predicate[]::new))
+                .orderBy(criteriaBuilder.asc(root.get("id")));
+
 
         // Применяем предикаты ДО создания запроса
         if (!predicates.isEmpty()) {

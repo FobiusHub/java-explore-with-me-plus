@@ -50,7 +50,9 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
     @Override
     public List<EventShortDto> getEventsFilteredBy(AdminEventFilter adminEventFilter) {
 
-        return eventRepository.findAllByFilter(adminEventFilter).stream().map(EventMapper::toEventShortDto).toList();
+        return eventRepository.findAllByFilter(adminEventFilter).stream()
+                .map(EventMapper::toEventShortDto)
+                .toList();
     }
 
     @Override
