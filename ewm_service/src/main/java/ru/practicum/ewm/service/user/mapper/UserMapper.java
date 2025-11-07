@@ -2,22 +2,30 @@ package ru.practicum.ewm.service.user.mapper;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.service.user.dto.UserDto;
+import ru.practicum.ewm.service.user.dto.UserShortDto;
 import ru.practicum.ewm.service.user.model.User;
 
 @UtilityClass
 public class UserMapper {
     public UserDto toUserDto(User user) {
-        UserDto userDto = new UserDto();
-        userDto.setId(user.getId());
-        userDto.setName(user.getName());
-        userDto.setEmail(user.getEmail());
-        return userDto;
+        return UserDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .build();
     }
 
-    public User toUser(UserDto dto) {
+    public User toUser(UserDto userDto) {
         User user = new User();
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
+        user.setName(userDto.getName());
+        user.setEmail(userDto.getEmail());
         return user;
+    }
+
+    public UserShortDto toUserShortDto (User user){
+        return UserShortDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .build();
     }
 }
