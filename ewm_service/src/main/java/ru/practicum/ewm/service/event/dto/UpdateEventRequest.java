@@ -1,8 +1,14 @@
 package ru.practicum.ewm.service.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.*;
-import lombok.*;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.ewm.service.event.model.Location;
 import ru.practicum.ewm.service.event.util.DateTimeFormatUtil;
@@ -15,11 +21,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateEventRequest {
-
-    private Long event;
-
-    private Long initiator;
-
     @Size(min = 20, max = 2000)
     private String annotation;
 

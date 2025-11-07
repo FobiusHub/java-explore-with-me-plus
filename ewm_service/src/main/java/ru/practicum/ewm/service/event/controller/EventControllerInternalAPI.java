@@ -13,6 +13,7 @@ import ru.practicum.ewm.service.event.dto.*;
 import ru.practicum.ewm.service.event.repository.filter.internal.InternalEventFilter;
 import ru.practicum.ewm.service.event.service.EventServiceInternal;
 import ru.practicum.ewm.service.request.dto.ParticipationRequestDto;
+import ru.practicum.ewm.service.event.dto.UpdateRequestDto;
 
 import java.util.List;
 
@@ -65,9 +66,7 @@ public class EventControllerInternalAPI {
             @PathVariable("eventId") @Positive @NotNull Long eventId,
             @RequestBody UpdateEventUserRequest updateEvent
     ) {
-        updateEvent.setInitiator(userId);
-        updateEvent.setEvent(eventId);
-        return eventServiceInternal.patchEventOfUserBy(updateEvent);
+        return eventServiceInternal.patchEventOfUserBy(updateEvent, userId, eventId);
     }
 
     @GetMapping("/{eventId}/requests")

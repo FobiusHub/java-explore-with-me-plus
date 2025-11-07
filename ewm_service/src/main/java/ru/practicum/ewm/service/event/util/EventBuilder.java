@@ -44,7 +44,7 @@ public class EventBuilder {
                 .participantLimit(newEventDto.getParticipantLimit())
                 .publishedOn(null) //устанавливается после модерации
                 .requestModeration(newEventDto.getRequestModeration())
-                .state(EventState.PENDING)
+                .status(EventState.PENDING)
                 .title(newEventDto.getTitle())
                 .views(defaultVies).build();
     }

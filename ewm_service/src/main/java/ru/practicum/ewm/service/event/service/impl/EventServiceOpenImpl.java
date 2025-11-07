@@ -153,7 +153,7 @@ public class EventServiceOpenImpl implements EventServiceOpen {
         }
         Event event = eventRepository.findById(id).orElseThrow(() -> new EventNotFoundException(message));
 
-        if (event.getState() != EventState.PUBLISHED) {
+        if (event.getStatus() != EventState.PUBLISHED) {
             throw new BadRequestException("Event must be published");
         }
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);

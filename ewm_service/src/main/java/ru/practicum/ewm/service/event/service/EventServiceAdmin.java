@@ -9,6 +9,5 @@ import java.util.List;
 public interface EventServiceAdmin {
     List<EventShortDto> getEventsFilteredBy(AdminEventFilter adminEventFilter);
 
-    EventShortDto patchEvent(UpdateEventAdminRequest event);
-
+    EventShortDto patchEvent(UpdateEventAdminRequest event, Long eventId);
 }

@@ -20,6 +20,7 @@ import ru.practicum.ewm.service.event.service.EventServiceInternal;
 import ru.practicum.ewm.service.event.util.EventBuilder;
 import ru.practicum.ewm.service.event.util.EventMapper;
 import ru.practicum.ewm.service.request.dto.ParticipationRequestDto;
+import ru.practicum.ewm.service.event.dto.UpdateRequestDto;
 import ru.practicum.ewm.service.request.mapper.RequestMapper;
 import ru.practicum.ewm.service.request.model.ParticipationRequest;
 import ru.practicum.ewm.service.request.model.RequestStatus;
@@ -96,20 +97,20 @@ public class EventServiceInternalImpl implements EventServiceInternal {
         }
 
         // поиск в БД события по его id
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(
+        Event currentEvent = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(
                 String.format("Event id=%d not found", eventId)));
 
         // проверка, что у события неограниченный лимит участников (модерация не требуется)
-        if (event.getParticipantLimit() != null) {
-            if (event.getParticipantLimit() == 0) {
+        if (currentEvent.getParticipantLimit() != null) {
+            if (currentEvent.getParticipantLimit() == 0) {
                 log.info("Request conformation is not required. Participant limit: 0 (unlimited)");
                 return;
             }
         }
 
         // проверка, что пользователь является инициатором события
-        if (event.getInitiator() != null) {
-            User initiator = event.getInitiator();
+        if (currentEvent.getInitiator() != null) {
+            User initiator = currentEvent.getInitiator();
             Long initiatorId = initiator.getId();
             if (!initiatorId.equals(userId)) {
                 String message = String.format("User id=%d is not initiator of event id=%d", userId, eventId);
@@ -118,18 +119,18 @@ public class EventServiceInternalImpl implements EventServiceInternal {
         }
 
         // проверка по флагу, что событие требует модерации
-        if (event.getRequestModeration() != null) {
-            if (!event.getRequestModeration()) {
+        if (currentEvent.getRequestModeration() != null) {
+            if (!currentEvent.getRequestModeration()) {
                 log.info("Request conformation is not required. Request moderation of event: false");
                 return;
             }
         }
 
         // проверка, что у события не исчерпан лимит участников
-        if (event.getParticipantLimit() != null) {
-            if (event.getConfirmedParticipantRequests() != null) {
-                int limit = event.getParticipantLimit();
-                int value = event.getConfirmedParticipantRequests();
+        if (currentEvent.getParticipantLimit() != null) {
+            if (currentEvent.getConfirmedParticipantRequests() != null) {
+                int limit = currentEvent.getParticipantLimit();
+                int value = currentEvent.getConfirmedParticipantRequests();
                 if (value >= limit) {
                     String message = String.format("Unable to confirm request. Participant limit of requests: %d. " +
                             "Confirmed requests: %d", limit, value);
@@ -162,7 +163,7 @@ public class EventServiceInternalImpl implements EventServiceInternal {
         }
 
         // проверка, что после подтверждения всех запросов на участие не будет превышен лимит участников события
-        Integer limit = event.getParticipantLimit();
+        Integer limit = currentEvent.getParticipantLimit();
         Integer confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
         int countOfAllowedNumbers = limit - confirmedRequests;
         if (requests.size() > countOfAllowedNumbers) {
@@ -181,10 +182,14 @@ public class EventServiceInternalImpl implements EventServiceInternal {
     }
 
     @Override
-    public EventFullDto patchEventOfUserBy(UpdateEventUserRequest updateEvent) {
-        Long eventId = updateEvent.getEvent();
+    public EventFullDto patchEventOfUserBy(UpdateEventUserRequest updateEvent, Long userId, Long eventId) {
         Event currentEvent = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(
                 String.format("Event id=%d not found", eventId)));
+
+        if (!currentEvent.getInitiator().getId().equals(userId)) {
+            String message = String.format("User id=%d is not initiator of event id=%d", userId, eventId);
+            throw new BadRequestException(message);
+        }
 
         String annotation = updateEvent.getAnnotation() == null ?
                 currentEvent.getAnnotation() : updateEvent.getAnnotation();
@@ -227,19 +232,19 @@ public class EventServiceInternalImpl implements EventServiceInternal {
                 currentEvent.getRequestModeration() : updateEvent.getRequestModeration();
         currentEvent.setRequestModeration(requestModeration);
 
-
         if (updateEvent.getStateAction() != null) {
             StateActionInternal stateAction = updateEvent.getStateAction();
             if (stateAction == StateActionInternal.CANCEL_REVIEW) {
-                currentEvent.setState(EventState.CANCELED);
+                currentEvent.setStatus(EventState.CANCELED);
             }
             if (stateAction == StateActionInternal.SEND_TO_REVIEW) {
-                currentEvent.setState(EventState.PENDING);
+                currentEvent.setStatus(EventState.PENDING);
             }
         }
 
         String title = updateEvent.getTitle() == null ?
                 currentEvent.getTitle() : updateEvent.getTitle();
+        currentEvent.setTitle(title);
 
         Event event = eventRepository.save(currentEvent);
 

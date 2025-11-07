@@ -69,7 +69,7 @@ public class EventMapper {
                 .participantLimit(event.getParticipantLimit())
                 .publishedOn(event.getPublishedOn())
                 .requestModeration(event.getRequestModeration())
-                .state(event.getState())
+                .state(event.getStatus())
                 .title(event.getTitle())
                 .views(event.getViews())
                 .build();

@@ -50,36 +50,52 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
     @Override
     public List<EventShortDto> getEventsFilteredBy(AdminEventFilter adminEventFilter) {
 
-        return eventRepository.findAllByFilter(adminEventFilter).stream()
-                .map(EventMapper::toEventShortDto)
-                .toList();
+        return eventRepository.findAllByFilter(adminEventFilter).stream().map(EventMapper::toEventShortDto).toList();
     }
 
     @Override
-    public EventShortDto patchEvent(UpdateEventAdminRequest eventToUpdate) {
-        Long eventId = eventToUpdate.getId();
+    public EventShortDto patchEvent(UpdateEventAdminRequest updateEvent, Long eventId) {
+        Event currentEvent = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(String.format("Event id=%d not found", eventId)));
 
-        Event currentEvent = getEvent(eventId);
+        if (updateEvent.getStateAction() != null) {
+            /*
+             * обновление статуса текущего события
+             */
+            StateActionAdmin stateAction = updateEvent.getStateAction();
+            switch (stateAction) {
+                /*
+                 * событие можно отклонить, только если оно еще не опубликовано
+                 * (Ожидается код ошибки 409)
+                 */
+                case StateActionAdmin.CANCEL_EVENT:
+                    if (currentEvent.getStatus() == EventState.PUBLISHED) {
+                        String message = String.format("Cannot cancel event. Event status: %s", EventState.PUBLISHED);
+                        throw new BadRequestException(message);
+                    }
+                    currentEvent.setStatus(EventState.CANCELED);
+                    break;
 
-        /*
-         * Дата начала изменяемого события должна быть не ранее чем за час от даты публикации.
-         * (Ожидается код ошибки 409)
-         */
-        if (eventToUpdate.getStateAction() == StateActionAdmin.PUBLISH_EVENT) {
-            if (currentEvent.getState() != EventState.PENDING) {
-                String message = "Event must be in PENDING state to be published";
-                throw new BadRequestException(message);
-            }
-        }
-
-        /*
-         * событие можно публиковать, только если оно в состоянии ожидания публикации
-         * (Ожидается код ошибки 409)
-         */
-        if (eventToUpdate.getStateAction() == StateActionAdmin.CANCEL_EVENT) {
-            if (currentEvent.getState() == EventState.PUBLISHED) {
-                String message = "Event must be in PENDING state to be published";
-                throw new BadRequestException(message);
+                /*
+                 * событие можно публиковать, только если оно в состоянии ожидания публикации
+                 * (Ожидается код ошибки 409)
+                 */
+                case StateActionAdmin.PUBLISH_EVENT:
+                    if (currentEvent.getStatus() != EventState.PENDING) {
+                        String message = String.format("Event must be in PENDING state. " +
+                                "Current event state: %s", currentEvent.getStatus());
+                        throw new BadRequestException(message);
+                    }
+                    LocalDateTime currentDate = LocalDateTime.now();
+                    LocalDateTime dateEvent = currentEvent.getEventDate();
+                    long timeBufferUntilPublicationDate = 1;
+                    if (currentDate.isAfter(dateEvent.minusHours(timeBufferUntilPublicationDate))) {
+                        String message = String.format("The event start time must be scheduled no earlier than" +
+                                "%d hour(s) after publication", timeBufferUntilPublicationDate);
+                        throw new BadRequestException(message);
+                    }
+                    currentEvent.setStatus(EventState.PUBLISHED);
+                    currentEvent.setPublishedOn(LocalDateTime.now());
+                    break;
             }
         }
 
@@ -95,60 +111,45 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
             throw new BadRequestException(message);
         }
 
-        if (eventToUpdate.getEventDate() != null) {
-            LocalDateTime eventDate = eventToUpdate.getEventDate();
-            currentEvent.setEventDate(eventDate);
-        }
+        String annotation = updateEvent.getAnnotation() == null ?
+                currentEvent.getAnnotation() : updateEvent.getAnnotation();
+        currentEvent.setAnnotation(annotation);
 
-        if (eventToUpdate.getAnnotation() != null) {
-            String annotation = eventToUpdate.getAnnotation();
-            currentEvent.setAnnotation(annotation);
-        }
-
-        if (eventToUpdate.getCategory() != null) {
-            Long newCategoryId = eventToUpdate.getCategory();
-            Long currentCategoryId = currentEvent.getCategory() == null ?
-                    null : currentEvent.getCategory().getId();
-            if (!newCategoryId.equals(currentCategoryId)) {
-                Category newCategory = getCategory(newCategoryId);
-                currentEvent.setCategory(newCategory);
+        if (updateEvent.getCategory() != null) {
+            if (!updateEvent.getCategory().equals(currentEvent.getCategory().getId())) {
+                Long categoryId = updateEvent.getCategory();
+                Category category = categoryRepository.findById(categoryId).orElseThrow(() -> {
+                    String message = String.format("Unable to get category id=%d", categoryId);
+                    log.warn(message);
+                    return new NotFoundException(message);
+                });
+                currentEvent.setCategory(category);
             }
         }
 
-        if (eventToUpdate.getDescription() != null) {
-            String description = eventToUpdate.getDescription();
-            currentEvent.setDescription(description);
-        }
+        String description = updateEvent.getDescription() == null ?
+                currentEvent.getDescription() : updateEvent.getDescription();
+        currentEvent.setDescription(description);
 
-        if (eventToUpdate.getLocation() != null) {
-            Location location = eventToUpdate.getLocation();
-            currentEvent.setLocation(location);
-        }
+        Location location = updateEvent.getLocation() == null ?
+                currentEvent.getLocation() : updateEvent.getLocation();
+        currentEvent.setLocation(location);
 
-        if (eventToUpdate.getPaid() != null) {
-            Boolean paid = eventToUpdate.getPaid();
-            currentEvent.setPaid(paid);
-        }
+        Boolean paid = updateEvent.getPaid() == null ?
+                currentEvent.getPaid() : updateEvent.getPaid();
+        currentEvent.setPaid(paid);
 
-        if (eventToUpdate.getParticipantLimit() != null) {
-            Integer participantLimit = eventToUpdate.getParticipantLimit();
-            currentEvent.setParticipantLimit(participantLimit);
-        }
+        Integer participantLimit = updateEvent.getParticipantLimit() == null ?
+                currentEvent.getParticipantLimit() : updateEvent.getParticipantLimit();
+        currentEvent.setParticipantLimit(participantLimit);
 
-        if (eventToUpdate.getRequestModeration() != null) {
-            Boolean requestModeration = eventToUpdate.getRequestModeration();
-            currentEvent.setRequestModeration(requestModeration);
-        }
+        Boolean requestModeration = updateEvent.getRequestModeration() == null ?
+                currentEvent.getRequestModeration() : updateEvent.getRequestModeration();
+        currentEvent.setRequestModeration(requestModeration);
 
-        if (eventToUpdate.getRequestModeration() != null) {
-            Boolean requestModeration = eventToUpdate.getRequestModeration();
-            currentEvent.setRequestModeration(requestModeration);
-        }
-
-        if (eventToUpdate.getTitle() != null) {
-            String title = eventToUpdate.getTitle();
-            currentEvent.setTitle(title);
-        }
+        String title = updateEvent.getTitle() == null ?
+                currentEvent.getTitle() : updateEvent.getTitle();
+        currentEvent.setTitle(title);
 
         Event eventResponse = eventRepository.save(currentEvent);
         log.info("Event id={} has been updated", eventId);
@@ -161,10 +162,5 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
             log.warn("При запросе категории возникла ошибка: категория не найдена");
             return new NotFoundException("Категория " + id + " не найдена");
         });
-    }
-
-    private Event getEvent(Long id) {
-        String message = String.format("Event with id=%d was not found", id);
-        return eventRepository.findById(id).orElseThrow(() -> new EventNotFoundException(message));
     }
 }

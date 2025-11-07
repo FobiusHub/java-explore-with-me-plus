@@ -113,7 +113,7 @@ public class RequestServiceImpl implements RequestService {
             throw new ValidationException("Инициатор события не может добавить запрос на участие в своём событии");
         }
 
-        if (!event.getState().equals(EventState.PUBLISHED)) {
+        if (!event.getStatus().equals(EventState.PUBLISHED)) {
             log.warn("Нельзя участвовать в неопубликованном событии");
             throw new ValidationException("Нельзя участвовать в неопубликованном событии");
         }

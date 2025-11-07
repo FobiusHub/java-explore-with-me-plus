@@ -13,5 +13,5 @@ import ru.practicum.ewm.service.event.enums.StateActionInternal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateEventUserRequest extends UpdateEventRequest {
-    StateActionInternal stateAction;
+    private StateActionInternal stateAction;
 }

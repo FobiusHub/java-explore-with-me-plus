@@ -67,7 +67,7 @@ public class Event {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 50)
-    private EventState state;
+    private EventState status;
 
     @Column(length = 120)
     private String title;
