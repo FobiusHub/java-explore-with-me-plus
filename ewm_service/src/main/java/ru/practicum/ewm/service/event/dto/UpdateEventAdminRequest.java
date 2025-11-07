@@ -13,6 +13,6 @@ import ru.practicum.ewm.service.event.enums.StateActionAdmin;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateEventAdminRequest extends UpdateEventRequest {
-    StateActionAdmin stateAction;
+    private StateActionAdmin stateAction;
 }
 

@@ -135,8 +135,7 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
                 currentEvent.getLocation() : updateEvent.getLocation();
         currentEvent.setLocation(location);
 
-        Boolean paid = updateEvent.getPaid() == null ?
-                currentEvent.getPaid() : updateEvent.getPaid();
+        boolean paid = updateEvent.getPaid();
         currentEvent.setPaid(paid);
 
         Integer participantLimit = updateEvent.getParticipantLimit() == null ?

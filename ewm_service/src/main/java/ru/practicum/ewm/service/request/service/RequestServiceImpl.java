@@ -59,14 +59,6 @@ public class RequestServiceImpl implements RequestService {
         request.setCreated(LocalDateTime.now());
         request.setEvent(event);
 
-        if (event.getRequestModeration()) {
-            request.setStatus(RequestStatus.PENDING);
-        } else {
-            request.setStatus(RequestStatus.CONFIRMED);
-            long confirmedRequest = event.getConfirmedRequests() != null ? event.getConfirmedRequests() : 0L;
-            event.setConfirmedRequests(++confirmedRequest);
-            eventRepository.save(event);
-        }
         request = requestRepository.save(request);
 
         return RequestMapper.toRequestDto(request);

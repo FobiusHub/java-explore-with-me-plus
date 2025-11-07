@@ -1,9 +1,7 @@
 package ru.practicum.ewm.service.event.exception;
 
-import lombok.*;
+import lombok.Builder;
 import org.springframework.http.HttpStatus;
-
-import java.util.List;
 
 /**
  * Стандартизированный объект для представления ошибок в API.
@@ -25,7 +23,7 @@ public record ApiError(
 		 * Может быть null, если ошибка не связана с валидацией полей.
 		 * Каждый элемент содержит информацию о конкретном нарушении валидации.
 		 */
-		List<Error> errors,
+//		List<Error> errors,
 
 		/*
 		 * Детальное сообщение об ошибке, описывающее, что именно пошло не так.

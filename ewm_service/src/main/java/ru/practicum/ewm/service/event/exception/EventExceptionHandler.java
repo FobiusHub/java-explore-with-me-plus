@@ -53,7 +53,7 @@ public class EventExceptionHandler {
         return ApiError.builder()
                 .message(exception.getMessage())
                 .reason(exception.getReason())
-                .status(exception.getStatus())
+                .status(HttpStatus.BAD_REQUEST)
                 .timeStamp(exception.getTimeStamp())
                 .build();
     }

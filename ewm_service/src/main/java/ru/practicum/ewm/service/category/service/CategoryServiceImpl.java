@@ -12,6 +12,8 @@ import ru.practicum.ewm.service.category.repository.CategoryRepository;
 import ru.practicum.ewm.service.common.exception.InternalServerException;
 import ru.practicum.ewm.service.common.exception.NotFoundException;
 import ru.practicum.ewm.service.common.exception.ValidationException;
+import ru.practicum.ewm.service.event.exception.BadRequestException;
+import ru.practicum.ewm.service.event.repository.EventRepository;
 
 import java.util.List;
 
@@ -20,6 +22,7 @@ import java.util.List;
 @Service
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
+    private final EventRepository eventRepository;
 
     @Transactional
     @Override
@@ -34,6 +37,13 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     @Override
     public void delete(long categoryId) {
+
+        if (eventRepository.existsByCategoryId(categoryId)) {
+            String message = String.format("С категорией id=%d есть связанные события", categoryId);
+            throw new BadRequestException(message);
+        }
+
+
         checkCategoryExist(categoryId);
         categoryRepository.deleteById(categoryId);
         categoryRepository.flush(); //Без flush() удаление может быть отложено до конца транзакции

@@ -28,7 +28,7 @@ public class Event {
     @Column(length = 2000)
     private String annotation;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
 
@@ -55,12 +55,12 @@ public class Event {
     private Boolean paid;
 
     @JsonProperty(defaultValue = "0")
+    @Column(name = "participant_limit")
     private Integer participantLimit;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateTimeFormatUtil.DATE_TIME_FORMAT)
     private LocalDateTime publishedOn;
 
-    @JsonProperty(defaultValue = "true")
     private Boolean requestModeration;
 
     @Enumerated(EnumType.STRING)

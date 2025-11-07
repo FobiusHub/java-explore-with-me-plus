@@ -22,4 +22,6 @@ public interface EventRepository extends JpaRepository<Event, Long>,
         OpenEventFilterRepository,
         AdminEventFilterRepository,
         InternalEventFilterRepository {
+
+    boolean existsByCategoryId(Long id);
 }

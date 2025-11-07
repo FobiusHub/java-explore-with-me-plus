@@ -99,7 +99,7 @@ public class EventFullDto {
      * Флаг, указывающий требуется ли модерация заявок на участие
      */
     @JsonProperty(defaultValue = "true")
-    private Boolean requestModeration;
+    private boolean requestModeration;
 
     /**
      * Текущее состояние события в системе

@@ -1,7 +1,6 @@
 package ru.practicum.ewm.service.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import ru.practicum.ewm.service.event.model.Location;
@@ -15,12 +14,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NewEventDto {
-
-    @Nullable
-    private Long id;
-
-    @Nullable
-    private Long initiator;
 
     @NotBlank
     @Size(min = 20, max = 2000)
@@ -42,8 +35,7 @@ public class NewEventDto {
     @NotNull
     private Location location;
 
-    @Builder.Default
-    private Boolean paid = false;
+    private boolean paid;
 
     /**
      * default participant limit = 0 means "unlimited"
@@ -53,7 +45,7 @@ public class NewEventDto {
     private Integer participantLimit = 0;
 
     @Builder.Default
-    private Boolean requestModeration = true;
+    private boolean requestModeration = true;
 
     @NotBlank
     @Size(min = 3, max = 120)
