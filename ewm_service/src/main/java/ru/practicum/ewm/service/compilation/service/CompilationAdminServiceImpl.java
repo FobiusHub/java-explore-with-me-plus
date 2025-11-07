@@ -14,7 +14,6 @@ import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.repository.EventRepository;
 import ru.practicum.ewm.service.event.util.EventMapper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 

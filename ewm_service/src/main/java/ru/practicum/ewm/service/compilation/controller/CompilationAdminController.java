@@ -1,6 +1,5 @@
 package ru.practicum.ewm.service.compilation.controller;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,29 +16,47 @@ import ru.practicum.ewm.service.compilation.service.CompilationAdminService;
 @Validated
 public class CompilationAdminController {
 
-    private final CompilationAdminService service;  // ← интерфейс
+    private final CompilationAdminService service;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CompilationDto create(@Valid @RequestBody NewCompilationDto dto) {
+    public CompilationDto create(@RequestBody NewCompilationDto dto) {
+        log.info("АДМИН API: создание подборки title={}", dto.getTitle());
         return service.create(dto);
     }
 
     @DeleteMapping("/{compId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable @Positive Long compId) {
+        log.info("АДМИН API: удаление подборки id={}", compId);
         service.delete(compId);
     }
 
     @PatchMapping("/{compId}")
     public CompilationDto update(
             @PathVariable @Positive Long compId,
-            @Valid @RequestBody UpdateCompilationRequest dto) {
+            @RequestBody(required = false) UpdateCompilationRequest dto
+    ) {
+        // Пропускаем PATCH без тела
+        if (dto == null) {
+            log.info("АДМИН API: PATCH /admin/compilations/{} получено пустое тело — применяем пустой DTO", compId);
+            dto = UpdateCompilationRequest.builder().build();
+        }
+
         log.info("АДМИН API: PATCH /admin/compilations/{} тело: events={}, pinned={}, title={}",
-                compId, dto.getEvents(), dto.getPinned(), dto.getTitle());
+                compId,
+                dto.getEvents(),
+                dto.getPinned(),
+                dto.getTitle());
+
         CompilationDto resp = service.update(compId, dto);
-        log.info("АДМИН API: результат PATCH: id={}, кол-во событий={}, pinned={}, title={}",
-                resp.getId(), resp.getEvents() == null ? 0 : resp.getEvents().size(), resp.getPinned(), resp.getTitle());
+
+        log.info("АДМИН API: результат PATCH: id={}, количество событий={}, pinned={}, title={}",
+                resp.getId(),
+                resp.getEvents() == null ? 0 : resp.getEvents().size(),
+                resp.getPinned(),
+                resp.getTitle());
+
         return resp;
     }
 }

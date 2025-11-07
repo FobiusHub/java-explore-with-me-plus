@@ -11,7 +11,10 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "compilations", uniqueConstraints = @UniqueConstraint(columnNames = "title"))
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Compilation {
 
     @Id
