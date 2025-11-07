@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.dto.NewEventDto;
+import ru.practicum.ewm.service.event.dto.UpdateRequestDto;
 import ru.practicum.ewm.service.event.repository.filter.internal.InternalEventFilter;
 import ru.practicum.ewm.service.event.service.EventServiceInternal;
+import ru.practicum.ewm.service.request.dto.ParticipationRequestDto;
 
 import java.util.List;
 
@@ -44,7 +46,7 @@ public class EventControllerInternalAPI {
     public EventFullDto postEvent(
             @PathVariable("userId") @Positive @NotNull Long userId,
             @RequestBody @Valid NewEventDto newEventDto) {
-        log.info("GET /users/{}/events with body:{}", userId, newEventDto);
+        log.info("POST /users/{}/events with body:{}", userId, newEventDto);
         newEventDto.setInitiatorId(userId);
         return eventServiceInternal.postEvent(newEventDto);
     }
@@ -61,12 +63,19 @@ public class EventControllerInternalAPI {
     }
 
     @GetMapping("/{eventId}/requests")
-    public EventFullDto getRequestsOfUserBy(
+    public ParticipationRequestDto getRequestOfUserBy(
             @PathVariable("userId") @Positive @NotNull Long userId,
             @PathVariable("eventId") @Positive @NotNull Long eventId
     ) {
         return eventServiceInternal.getRequestOfUserBy(userId, eventId);
     }
 
-
+    @PatchMapping("/{eventId}/requests")
+    public void updateRequestStatus(
+            @PathVariable("userId") @Positive @NotNull Long userId,
+            @PathVariable("eventId") @Positive @NotNull Long eventId,
+            @RequestBody @Valid UpdateRequestDto updateRequestDto
+    ) {
+        eventServiceInternal.updateEventStatus(updateRequestDto, userId, eventId);
+    }
 }

@@ -67,7 +67,6 @@ public class RequestServiceImpl implements RequestService {
             event.setConfirmedRequests(++confirmedRequest);
             eventRepository.save(event);
         }
-
         request = requestRepository.save(request);
 
         return RequestMapper.toRequestDto(request);

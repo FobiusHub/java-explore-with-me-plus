@@ -1,9 +1,8 @@
 package ru.practicum.ewm.service.event.service;
 
-import ru.practicum.ewm.service.event.dto.EventFullDto;
-import ru.practicum.ewm.service.event.dto.EventShortDto;
-import ru.practicum.ewm.service.event.dto.NewEventDto;
+import ru.practicum.ewm.service.event.dto.*;
 import ru.practicum.ewm.service.event.repository.filter.internal.InternalEventFilter;
+import ru.practicum.ewm.service.request.dto.ParticipationRequestDto;
 
 import java.util.List;
 
@@ -14,5 +13,7 @@ public interface EventServiceInternal {
 
     EventFullDto getEventOfUserBy(InternalEventFilter filter);
 
-    EventFullDto getRequestOfUserBy(Long userId, Long eventId);
+    ParticipationRequestDto getRequestOfUserBy(Long userId, Long eventId);
+
+    void updateEventStatus(UpdateRequestDto updateRequestDto, Long userId, Long eventId);
 }

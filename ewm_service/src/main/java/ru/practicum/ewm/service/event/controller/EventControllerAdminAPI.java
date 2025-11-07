@@ -90,14 +90,13 @@ public class EventControllerAdminAPI {
     }
 
     @PatchMapping("/{id}")
-    public String patchEventById(
+    public EventShortDto patchEventById(
             @PathVariable("id") Long id,
             @RequestBody UpdateEventDto event
     ) {
         log.info("PATCH /events/id with id={}", id);
         event.setId(id);
-        adminEventService.patchEvent(event);
-        return null;
+      return adminEventService.patchEvent(event);
     }
 
     private List<Long> validateIdsList(List<Long> idsList) {

@@ -1,5 +1,6 @@
 package ru.practicum.ewm.service.event.dto;
 
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 import ru.practicum.ewm.service.event.enums.StateAction;
 import ru.practicum.ewm.service.event.model.Location;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateEventDto {
+    @Positive
     private Long id;
     private String annotation;
     private Long category;
