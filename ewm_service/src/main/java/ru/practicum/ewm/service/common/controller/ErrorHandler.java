@@ -26,6 +26,12 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse conflictExceptionHandle(final ConflictException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
     /*
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)

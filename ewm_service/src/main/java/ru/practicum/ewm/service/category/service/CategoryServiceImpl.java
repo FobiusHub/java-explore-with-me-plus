@@ -9,10 +9,10 @@ import ru.practicum.ewm.service.category.dto.NewCategoryDto;
 import ru.practicum.ewm.service.category.mapper.CategoryMapper;
 import ru.practicum.ewm.service.category.model.Category;
 import ru.practicum.ewm.service.category.repository.CategoryRepository;
+import ru.practicum.ewm.service.common.exception.ConflictException;
 import ru.practicum.ewm.service.common.exception.InternalServerException;
 import ru.practicum.ewm.service.common.exception.NotFoundException;
 import ru.practicum.ewm.service.common.exception.ValidationException;
-import ru.practicum.ewm.service.event.exception.BadRequestException;
 import ru.practicum.ewm.service.event.repository.EventRepository;
 
 import java.util.List;
@@ -33,14 +33,13 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
-    //ДОРАБОТАТЬ С УЧЕТОМ EVENT - 409 ЕСЛИ ЕСТЬ СВЯЗАННЫЕ СОБЫТИЯ
     @Transactional
     @Override
     public void delete(long categoryId) {
 
         if (eventRepository.existsByCategoryId(categoryId)) {
             String message = String.format("С категорией id=%d есть связанные события", categoryId);
-            throw new BadRequestException(message);
+            throw new ConflictException(message);
         }
 
 
