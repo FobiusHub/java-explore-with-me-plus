@@ -5,7 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.ewm.service.event.client.stats.StatsServiceDriver;
+import ru.practicum.ewm.service.event.util.DriverStatsServiceAPI;
 import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.enums.EventSort;
@@ -49,8 +49,9 @@ import java.util.List;
 public class EventServiceOpenImpl implements EventServiceOpen {
 
 
-    private StatsServiceDriver statsServiceDriver;
+    private DriverStatsServiceAPI statsServiceDriver;
     private final EventRepository eventRepository;
+    private final DriverStatsServiceAPI driverStatsServiceAPI;
 
     /**
      * Получает отфильтрованный список событий с применением пагинации и сортировки.
@@ -144,20 +145,20 @@ public class EventServiceOpenImpl implements EventServiceOpen {
      * @see EventFullDto
      * @see EventState
      */
+    @Transactional
     @Override
-    public EventFullDto getEventById(Long id) {
-        String message = String.format("Event with id=%d was not found", id);
-
-        if (!eventRepository.existsById(id)){
-            throw new EventNotFoundException(message);
-        }
-        Event event = eventRepository.findById(id).orElseThrow(() -> new EventNotFoundException(message));
+    public EventFullDto getEventById(Long id, HttpServletRequest request) {
+        Event event = eventRepository.findById(id).orElseThrow(() -> new EventNotFoundException(
+                String.format("Event with id=%d was not found", id)));
 
         if (event.getStatus() != EventState.PUBLISHED) {
-            throw new BadRequestException("Event must be published");
+            throw new BadRequestException(String.format("Event status must be %s. Current event status: %s",
+                    EventState.PUBLISHED, event.getStatus()));
         }
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
         log.info("Successfully retrieved event with id={}, title='{}'", id, eventFullDto.getTitle());
+
+        driverStatsServiceAPI.post(request);
         return eventFullDto;
     }
 }

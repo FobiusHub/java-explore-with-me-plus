@@ -128,9 +128,9 @@ public class EventServiceInternalImpl implements EventServiceInternal {
 
         // проверка, что у события не исчерпан лимит участников
         if (currentEvent.getParticipantLimit() != null) {
-            if (currentEvent.getConfirmedParticipantRequests() != null) {
+            if (currentEvent.getConfirmedRequests() != null) {
                 int limit = currentEvent.getParticipantLimit();
-                int value = currentEvent.getConfirmedParticipantRequests();
+                long value = currentEvent.getConfirmedRequests();
                 if (value >= limit) {
                     String message = String.format("Unable to confirm request. Participant limit of requests: %d. " +
                             "Confirmed requests: %d", limit, value);
@@ -163,9 +163,9 @@ public class EventServiceInternalImpl implements EventServiceInternal {
         }
 
         // проверка, что после подтверждения всех запросов на участие не будет превышен лимит участников события
-        Integer limit = currentEvent.getParticipantLimit();
-        Integer confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
-        int countOfAllowedNumbers = limit - confirmedRequests;
+        Long limit = Long.valueOf(currentEvent.getParticipantLimit());
+        Long confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
+        long countOfAllowedNumbers = limit - confirmedRequests;
         if (requests.size() > countOfAllowedNumbers) {
             String message = String.format("The participant limit=%d has been reached", limit);
             throw new BadRequestException(message);

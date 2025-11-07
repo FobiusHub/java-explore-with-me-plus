@@ -92,7 +92,7 @@ public class EventControllerOpenAPI {
                         "onlyAvailable={}, sort={}, from={}, size={}",
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
 
-        List <Long> validatedCategories = validateListOfIds(categories);
+        List<Long> validatedCategories = validateListOfIds(categories);
 
         OpenEventFilter openEventFilter = OpenEventFilter.builder()
                 .text(text)
@@ -123,15 +123,16 @@ public class EventControllerOpenAPI {
      * @example GET /events/14
      */
     @GetMapping("/{id}")
-    public EventFullDto getEventById(@PathVariable("id") @Positive Long id) {
+    public EventFullDto getEventById(@PathVariable("id") @Positive Long id, HttpServletRequest request
+    ) {
         log.info("GET /events/{}", id);
-        EventFullDto event = eventServiceOpen.getEventById(id);
+        EventFullDto event = eventServiceOpen.getEventById(id, request);
         log.info("GET /events/{} response: event '{}'", id, event.getTitle());
         return event;
     }
 
     private List<Long> validateListOfIds(List<Long> idsList) {
-        if (idsList != null && !idsList.isEmpty()){
+        if (idsList != null && !idsList.isEmpty()) {
             return idsList.stream().filter(id -> id >= 0).toList();
         }
         return new ArrayList<>();

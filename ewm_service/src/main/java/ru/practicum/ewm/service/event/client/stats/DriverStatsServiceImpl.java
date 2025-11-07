@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import ru.practicum.ewm.service.event.client.BaseClient;
+import ru.practicum.ewm.service.event.util.DriverStatsServiceAPI;
 import ru.practicum.ewm.stats.dto.EndpointHitDto;
 import ru.practicum.ewm.stats.dto.ViewStatsDto;
 
@@ -16,11 +17,12 @@ import java.util.List;
 @Slf4j
 @Component
 @AllArgsConstructor
-public class StatsServiceDriver {
+public class DriverStatsServiceImpl implements DriverStatsServiceAPI {
 
     private final BaseClient client;
     private final EndPointHitDtoBuilder endPointHitDtoBuilder;
 
+    @Override
     public void post(HttpServletRequest httpServletRequest) {
         try {
             String ip = httpServletRequest.getRemoteAddr();
@@ -42,7 +44,8 @@ public class StatsServiceDriver {
         }
     }
 
-    public List<ViewStatsDto> get (LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+    @Override
+    public List<ViewStatsDto> get(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         try {
            return client.get(start, end, uris, unique);
         } catch (Exception exception) {

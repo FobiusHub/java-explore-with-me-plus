@@ -8,10 +8,10 @@ import java.time.LocalDateTime;
 
 @Builder
 @Component
- class EndPointHitDtoBuilder {
+public class EndPointHitDtoBuilder {
     private final String app = "ewm-main-service";
 
-    public EndpointHitDto getEndpointHitDto(String uri, String ip){
+    public EndpointHitDto getEndpointHitDto(String uri, String ip) {
         EndpointHitDto endpointHitDto = new EndpointHitDto();
         endpointHitDto.setApp(app);
         endpointHitDto.setUri(uri);

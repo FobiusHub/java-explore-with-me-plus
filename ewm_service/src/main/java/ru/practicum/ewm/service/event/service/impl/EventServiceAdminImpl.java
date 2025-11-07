@@ -105,8 +105,8 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
          */
         currentEvent.setPublishedOn(LocalDateTime.now());
         LocalDateTime publishedOn = currentEvent.getPublishedOn();
-        long HOURS_RANGE_BETWEEN_PUBLISHING_AND_EVENTDATE = 1L;
-        if (currentEvent.getEventDate().isBefore(publishedOn.plusHours(HOURS_RANGE_BETWEEN_PUBLISHING_AND_EVENTDATE))) {
+        long hoursRangeBetweenPublishingAndEventDate = 1L;
+        if (currentEvent.getEventDate().isBefore(publishedOn.plusHours(hoursRangeBetweenPublishingAndEventDate))) {
             String message = "Event date must be at least one hour after the publication date";
             throw new BadRequestException(message);
         }
@@ -155,12 +155,5 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
         log.info("Event id={} has been updated", eventId);
 
         return EventMapper.toEventShortDto(eventResponse);
-    }
-
-    private Category getCategory(Long id) {
-        return categoryRepository.findById(id).orElseThrow(() -> {
-            log.warn("При запросе категории возникла ошибка: категория не найдена");
-            return new NotFoundException("Категория " + id + " не найдена");
-        });
     }
 }

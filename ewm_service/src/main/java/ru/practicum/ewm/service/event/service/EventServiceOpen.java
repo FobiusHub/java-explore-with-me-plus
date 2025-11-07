@@ -10,5 +10,5 @@ import java.util.List;
 public interface EventServiceOpen {
     List<EventShortDto> getEventsFilteredBy(OpenEventFilter filter, HttpServletRequest httpServletRequest);
 
-    EventFullDto getEventById(Long id);
+    EventFullDto getEventById(Long id, HttpServletRequest request);
 }
