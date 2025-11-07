@@ -10,7 +10,7 @@ import java.util.List;
 public interface EventServiceInternal {
     List<EventShortDto> getEventsOfUserBy(InternalEventFilter filter);
 
-    EventFullDto postEvent(NewEventDto newEventDto);
+    EventFullDto postEvent(NewEventDto newEventDto, Long userId);
 
     EventFullDto getEventOfUserBy(InternalEventFilter filter);
 

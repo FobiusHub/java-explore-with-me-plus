@@ -35,7 +35,7 @@ public class NewEventDto {
     @NotNull
     private Location location;
 
-    private boolean paid;
+    private Boolean paid;
 
     /**
      * default participant limit = 0 means "unlimited"
@@ -45,7 +45,7 @@ public class NewEventDto {
     private Integer participantLimit = 0;
 
     @Builder.Default
-    private boolean requestModeration = true;
+    private Boolean requestModeration = true;
 
     @NotBlank
     @Size(min = 3, max = 120)

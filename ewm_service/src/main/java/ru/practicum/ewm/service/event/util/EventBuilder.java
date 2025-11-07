@@ -22,8 +22,7 @@ public class EventBuilder {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
 
-    public Event buildEventBy(NewEventDto newEventDto) {
-        Long initiatorId = newEventDto.getInitiator();
+    public Event buildEventBy(NewEventDto newEventDto, Long initiatorId) {
         User initiator = getUser(initiatorId);
 
         Long categoryId = newEventDto.getCategory();

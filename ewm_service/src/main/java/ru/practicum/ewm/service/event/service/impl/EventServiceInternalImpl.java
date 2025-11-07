@@ -50,9 +50,8 @@ public class EventServiceInternalImpl implements EventServiceInternal {
     }
 
     @Override
-    public EventFullDto postEvent(NewEventDto newEventDto) {
-        Long userId = newEventDto.getInitiator();
-        Event eventToSave = eventBuilder.buildEventBy(newEventDto);
+    public EventFullDto postEvent(NewEventDto newEventDto, Long userId) {
+        Event eventToSave = eventBuilder.buildEventBy(newEventDto, userId);
         Event savedEvent = eventRepository.save(eventToSave);
         log.info("GET /users/{}/events response:{}", userId, savedEvent);
         return EventMapper.toEventFullDto(savedEvent);

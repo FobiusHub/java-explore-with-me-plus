@@ -45,8 +45,7 @@ public class EventControllerInternalAPI {
             @PathVariable("userId") @Positive @NotNull Long userId,
             @RequestBody @Valid NewEventDto newEventDto) {
         log.info("POST /users/{}/events with body:{}", userId, newEventDto);
-        newEventDto.setInitiator(userId);
-        return eventServiceInternal.postEvent(newEventDto);
+        return eventServiceInternal.postEvent(newEventDto, userId);
     }
 
     @GetMapping("/{eventId}")
