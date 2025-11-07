@@ -57,6 +57,8 @@ public class Event {
     @JsonProperty(defaultValue = "0")
     private Integer participantLimit;
 
+    private Integer confirmedParticipantRequests;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DateTimeFormatUtil.DATE_TIME_FORMAT)
     private LocalDateTime publishedOn;
 
