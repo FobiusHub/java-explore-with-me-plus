@@ -5,14 +5,14 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.ewm.service.event.client.stats.StatsRequestSender;
+import ru.practicum.ewm.service.event.client.stats.StatsServiceDriver;
+import ru.practicum.ewm.service.event.dto.EventFullDto;
+import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.enums.EventSort;
 import ru.practicum.ewm.service.event.enums.EventState;
 import ru.practicum.ewm.service.event.exception.BadRequestException;
 import ru.practicum.ewm.service.event.exception.EventNotFoundException;
 import ru.practicum.ewm.service.event.model.Event;
-import ru.practicum.ewm.service.event.dto.EventFullDto;
-import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.repository.EventRepository;
 import ru.practicum.ewm.service.event.repository.filter.open.OpenEventFilter;
 import ru.practicum.ewm.service.event.service.EventServiceOpen;
@@ -49,7 +49,7 @@ import java.util.List;
 public class EventServiceOpenImpl implements EventServiceOpen {
 
 
-    private StatsRequestSender statsRequestSender;
+    private StatsServiceDriver statsServiceDriver;
     private final EventRepository eventRepository;
 
     /**
@@ -105,7 +105,7 @@ public class EventServiceOpenImpl implements EventServiceOpen {
         List<EventShortDto> responseList = events.stream()
                 .map(EventMapper::toEventShortDto)
                 .toList();
-        statsRequestSender.sendRequestToStatService(httpServletRequest);
+        statsServiceDriver.post(httpServletRequest);
         return responseList;
     }
 

@@ -1,6 +1,7 @@
 package ru.practicum.ewm.service.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import ru.practicum.ewm.service.event.model.Location;
@@ -15,7 +16,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class NewEventDto {
 
-    private Long initiatorId;
+    @Nullable
+    private Long id;
+
+    @Nullable
+    private Long initiator;
 
     @NotBlank
     @Size(min = 20, max = 2000)

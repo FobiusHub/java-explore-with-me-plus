@@ -7,7 +7,6 @@ import ru.practicum.ewm.service.category.model.Category;
 import ru.practicum.ewm.service.category.repository.CategoryRepository;
 import ru.practicum.ewm.service.common.exception.NotFoundException;
 import ru.practicum.ewm.service.event.dto.NewEventDto;
-import ru.practicum.ewm.service.event.dto.UpdateEventDto;
 import ru.practicum.ewm.service.event.enums.EventState;
 import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.user.model.User;
@@ -24,7 +23,7 @@ public class EventBuilder {
     private final CategoryRepository categoryRepository;
 
     public Event buildEventBy(NewEventDto newEventDto) {
-        Long initiatorId = newEventDto.getInitiatorId();
+        Long initiatorId = newEventDto.getInitiator();
         User initiator = getUser(initiatorId);
 
         Long categoryId = newEventDto.getCategory();
@@ -50,38 +49,38 @@ public class EventBuilder {
                 .views(defaultVies).build();
     }
 
-    public Event buildEventBy(UpdateEventDto newEventDto) {
-        Long initiatorId = newEventDto.getId();
-        User initiator = getUser(initiatorId);
-
-        Long categoryId = newEventDto.getCategory();
-        Category category = getCategory(categoryId);
-
-        long defaultConfirmedRequests = 0L;
-        long defaultViews = 0L;
-        return Event.builder()
-                .annotation(newEventDto.getAnnotation())
-                .category(category)
-                .confirmedRequests(defaultConfirmedRequests)
-                .createdOn(LocalDateTime.now())
-                .description(newEventDto.getDescription())
-                .eventDate(newEventDto.getEventDate())
-                .initiator(initiator)
-                .location(newEventDto.getLocation())
-                .paid(newEventDto.getPaid())
-                .participantLimit(newEventDto.getParticipantLimit())
-                .publishedOn(LocalDateTime.now())
-                .requestModeration(newEventDto.getRequestModeration())
-                .state(EventState.PUBLISHED)
-                .title(newEventDto.getTitle())
-                .views(defaultViews).build();
-    }
+//    public Event buildEventBy() {
+//        Long initiatorId = newEventDto.getId();
+//        User initiator = getUser(initiatorId);
+//
+//        Long categoryId = newEventDto.getCategory();
+//        Category category = getCategory(categoryId);
+//
+//        long defaultConfirmedRequests = 0L;
+//        long defaultViews = 0L;
+//        return Event.builder()
+//                .annotation(newEventDto.getAnnotation())
+//                .category(category)
+//                .confirmedRequests(defaultConfirmedRequests)
+//                .createdOn(LocalDateTime.now())
+//                .description(newEventDto.getDescription())
+//                .eventDate(newEventDto.getEventDate())
+//                .initiator(initiator)
+//                .location(newEventDto.getLocation())
+//                .paid(newEventDto.getPaid())
+//                .participantLimit(newEventDto.getParticipantLimit())
+//                .publishedOn(LocalDateTime.now())
+//                .requestModeration(newEventDto.getRequestModeration())
+//                .state(EventState.PUBLISHED)
+//                .title(newEventDto.getTitle())
+//                .views(defaultViews).build();
+//    }
 
     private User getUser(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            log.warn("При запросе данных пользователя возникла ошибка: Пользователь id={} не найден", userId);
-            throw new NotFoundException("Пользователь id=" + userId + " не найден");
-        }
+//        if (!userRepository.existsById(userId)) {
+//            log.warn("При запросе данных пользователя возникла ошибка: Пользователь id={} не найден", userId);
+//            throw new NotFoundException("Пользователь id=" + userId + " не найден");
+//        }
         return userRepository.findById(userId).orElseThrow(() -> {
             log.warn("При запросе данных пользователя возникла ошибка: Пользователь id={} не найден", userId);
             return new NotFoundException("Пользователь id=" + userId + " не найден");
@@ -89,10 +88,10 @@ public class EventBuilder {
     }
 
     private Category getCategory(Long categoryId) {
-        if (!categoryRepository.existsById(categoryId)) {
-            log.warn("При запросе данных категории возникла ошибка: Категория id={} не найдена", categoryId);
-            throw new NotFoundException("Категория id=" + categoryId + " не найдена");
-        }
+//        if (!categoryRepository.existsById(categoryId)) {
+//            log.warn("При запросе данных категории возникла ошибка: Категория id={} не найдена", categoryId);
+//            throw new NotFoundException("Категория id=" + categoryId + " не найдена");
+//        }
         return categoryRepository.findById(categoryId).orElseThrow(() -> {
             log.warn("При запросе данных категории возникла ошибка: Категория id={} не найдена", categoryId);
             return new NotFoundException("Категория id=" + categoryId + " не найдена");

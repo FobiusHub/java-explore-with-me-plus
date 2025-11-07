@@ -46,7 +46,7 @@ public class EventServiceInternalImpl implements EventServiceInternal {
 
     @Override
     public EventFullDto postEvent(NewEventDto newEventDto) {
-        Long userId = newEventDto.getInitiatorId();
+        Long userId = newEventDto.getInitiator();
         Event eventToSave = eventBuilder.buildEventBy(newEventDto);
         Event savedEvent = eventRepository.save(eventToSave);
         log.info("GET /users/{}/events response:{}", userId, savedEvent);
@@ -75,7 +75,7 @@ public class EventServiceInternalImpl implements EventServiceInternal {
 
     @Transactional
     @Override
-    public void updateEventStatus(UpdateRequestDto updateRequestDto, Long userId, Long eventId) {
+    public void updateRequestStatus(UpdateRequestDto updateRequestDto, Long userId, Long eventId) {
 
         // проверка, что запрос на обновление статуса запроса - CONFIRMED
         if (updateRequestDto.getStatus() != RequestStatus.CONFIRMED) {

@@ -8,7 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
-import ru.practicum.ewm.service.event.dto.UpdateEventDto;
+import ru.practicum.ewm.service.event.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.event.enums.EventState;
 import ru.practicum.ewm.service.event.repository.filter.admin.AdminEventFilter;
 import ru.practicum.ewm.service.event.service.EventServiceAdmin;
@@ -77,9 +77,9 @@ public class EventControllerAdminAPI {
         List<Long> validatedCategories = validateIdsList(categories);
 
         List<EventShortDto> responseList = adminEventService.getEventsFilteredBy(AdminEventFilter.builder()
-                .users(users)
+                .users(validatedUsers)
                 .states(states)
-                .categories(users)
+                .categories(validatedCategories)
                 .rangeStart(rangeStart == null ? LocalDateTime.now() : rangeStart)
                 .rangeEnd(rangeEnd)
                 .from(from)
@@ -92,7 +92,7 @@ public class EventControllerAdminAPI {
     @PatchMapping("/{id}")
     public EventShortDto patchEventById(
             @PathVariable("id") Long id,
-            @RequestBody UpdateEventDto event
+            @RequestBody UpdateEventAdminRequest event
     ) {
         log.info("PATCH /events/id with id={}", id);
         event.setId(id);

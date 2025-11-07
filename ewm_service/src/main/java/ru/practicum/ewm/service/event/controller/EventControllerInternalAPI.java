@@ -9,10 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.service.event.dto.EventFullDto;
-import ru.practicum.ewm.service.event.dto.EventShortDto;
-import ru.practicum.ewm.service.event.dto.NewEventDto;
-import ru.practicum.ewm.service.event.dto.UpdateRequestDto;
+import ru.practicum.ewm.service.event.dto.*;
 import ru.practicum.ewm.service.event.repository.filter.internal.InternalEventFilter;
 import ru.practicum.ewm.service.event.service.EventServiceInternal;
 import ru.practicum.ewm.service.request.dto.ParticipationRequestDto;
@@ -47,7 +44,7 @@ public class EventControllerInternalAPI {
             @PathVariable("userId") @Positive @NotNull Long userId,
             @RequestBody @Valid NewEventDto newEventDto) {
         log.info("POST /users/{}/events with body:{}", userId, newEventDto);
-        newEventDto.setInitiatorId(userId);
+        newEventDto.setInitiator(userId);
         return eventServiceInternal.postEvent(newEventDto);
     }
 
@@ -61,6 +58,15 @@ public class EventControllerInternalAPI {
                 .eventId(eventId)
                 .build());
     }
+
+//    @PatchMapping("/{eventId}")
+//    public EventFullDto patchEventOfUserBy(
+//            @PathVariable("userId") @Positive @NotNull Long userId,
+//            @PathVariable("eventId") @Positive @NotNull Long eventId,
+//            @RequestBody UpdateEventUserRequest updateEvent
+//            ) {
+//        return eventServiceInternal.patchEventOfUserBy();
+//    }
 
     @GetMapping("/{eventId}/requests")
     public ParticipationRequestDto getRequestOfUserBy(
@@ -76,6 +82,6 @@ public class EventControllerInternalAPI {
             @PathVariable("eventId") @Positive @NotNull Long eventId,
             @RequestBody @Valid UpdateRequestDto updateRequestDto
     ) {
-        eventServiceInternal.updateEventStatus(updateRequestDto, userId, eventId);
+        eventServiceInternal.updateRequestStatus(updateRequestDto, userId, eventId);
     }
 }

@@ -21,7 +21,7 @@ public class StatsServiceDriver {
     private final BaseClient client;
     private final EndPointHitDtoBuilder endPointHitDtoBuilder;
 
-    public void create(HttpServletRequest httpServletRequest) {
+    public void post(HttpServletRequest httpServletRequest) {
         try {
             String ip = httpServletRequest.getRemoteAddr();
             String uri = httpServletRequest.getRequestURI();

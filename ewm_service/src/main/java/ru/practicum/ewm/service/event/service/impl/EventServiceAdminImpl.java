@@ -7,9 +7,9 @@ import ru.practicum.ewm.service.category.model.Category;
 import ru.practicum.ewm.service.category.repository.CategoryRepository;
 import ru.practicum.ewm.service.common.exception.NotFoundException;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
-import ru.practicum.ewm.service.event.dto.UpdateEventDto;
+import ru.practicum.ewm.service.event.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.event.enums.EventState;
-import ru.practicum.ewm.service.event.enums.StateAction;
+import ru.practicum.ewm.service.event.enums.StateActionAdmin;
 import ru.practicum.ewm.service.event.exception.BadRequestException;
 import ru.practicum.ewm.service.event.exception.EventNotFoundException;
 import ru.practicum.ewm.service.event.model.Event;
@@ -56,7 +56,7 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
     }
 
     @Override
-    public EventShortDto patchEvent(UpdateEventDto eventToUpdate) {
+    public EventShortDto patchEvent(UpdateEventAdminRequest eventToUpdate) {
         Long eventId = eventToUpdate.getId();
 
         Event currentEvent = getEvent(eventId);
@@ -65,7 +65,7 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
          * Дата начала изменяемого события должна быть не ранее чем за час от даты публикации.
          * (Ожидается код ошибки 409)
          */
-        if (eventToUpdate.getStateAction() == StateAction.PUBLISH_EVENT) {
+        if (eventToUpdate.getStateAction() == StateActionAdmin.PUBLISH_EVENT) {
             if (currentEvent.getState() != EventState.PENDING) {
                 String message = "Event must be in PENDING state to be published";
                 throw new BadRequestException(message);
@@ -76,7 +76,7 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
          * событие можно публиковать, только если оно в состоянии ожидания публикации
          * (Ожидается код ошибки 409)
          */
-        if (eventToUpdate.getStateAction() == StateAction.CANCEL_EVENT) {
+        if (eventToUpdate.getStateAction() == StateActionAdmin.CANCEL_EVENT) {
             if (currentEvent.getState() == EventState.PUBLISHED) {
                 String message = "Event must be in PENDING state to be published";
                 throw new BadRequestException(message);
