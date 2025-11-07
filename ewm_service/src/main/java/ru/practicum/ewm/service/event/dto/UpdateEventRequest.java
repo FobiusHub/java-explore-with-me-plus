@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class UpdateEventRequest {
 
-    private Long id;
+    private Long event;
 
     private Long initiator;
 

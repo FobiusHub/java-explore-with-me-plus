@@ -16,4 +16,6 @@ public interface EventServiceInternal {
     ParticipationRequestDto getRequestOfUserBy(Long userId, Long eventId);
 
     void updateRequestStatus(UpdateRequestDto updateRequestDto, Long userId, Long eventId);
+
+    EventFullDto patchEventOfUserBy(UpdateEventUserRequest updateEvent);
 }

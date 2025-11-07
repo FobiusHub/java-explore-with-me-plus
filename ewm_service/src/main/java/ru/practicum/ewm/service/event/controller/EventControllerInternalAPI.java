@@ -59,14 +59,16 @@ public class EventControllerInternalAPI {
                 .build());
     }
 
-//    @PatchMapping("/{eventId}")
-//    public EventFullDto patchEventOfUserBy(
-//            @PathVariable("userId") @Positive @NotNull Long userId,
-//            @PathVariable("eventId") @Positive @NotNull Long eventId,
-//            @RequestBody UpdateEventUserRequest updateEvent
-//            ) {
-//        return eventServiceInternal.patchEventOfUserBy();
-//    }
+    @PatchMapping("/{eventId}")
+    public EventFullDto patchEventOfUserBy(
+            @PathVariable("userId") @Positive @NotNull Long userId,
+            @PathVariable("eventId") @Positive @NotNull Long eventId,
+            @RequestBody UpdateEventUserRequest updateEvent
+    ) {
+        updateEvent.setInitiator(userId);
+        updateEvent.setEvent(eventId);
+        return eventServiceInternal.patchEventOfUserBy(updateEvent);
+    }
 
     @GetMapping("/{eventId}/requests")
     public ParticipationRequestDto getRequestOfUserBy(

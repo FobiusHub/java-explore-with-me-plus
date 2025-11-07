@@ -4,14 +4,16 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.ewm.service.category.model.Category;
+import ru.practicum.ewm.service.category.repository.CategoryRepository;
 import ru.practicum.ewm.service.common.exception.NotFoundException;
-import ru.practicum.ewm.service.event.dto.EventFullDto;
-import ru.practicum.ewm.service.event.dto.EventShortDto;
-import ru.practicum.ewm.service.event.dto.NewEventDto;
-import ru.practicum.ewm.service.event.dto.UpdateRequestDto;
+import ru.practicum.ewm.service.event.dto.*;
+import ru.practicum.ewm.service.event.enums.EventState;
+import ru.practicum.ewm.service.event.enums.StateActionInternal;
 import ru.practicum.ewm.service.event.exception.BadRequestException;
 import ru.practicum.ewm.service.event.exception.EventNotFoundException;
 import ru.practicum.ewm.service.event.model.Event;
+import ru.practicum.ewm.service.event.model.Location;
 import ru.practicum.ewm.service.event.repository.EventRepository;
 import ru.practicum.ewm.service.event.repository.filter.internal.InternalEventFilter;
 import ru.practicum.ewm.service.event.service.EventServiceInternal;
@@ -25,6 +27,7 @@ import ru.practicum.ewm.service.request.repository.RequestRepository;
 import ru.practicum.ewm.service.user.model.User;
 import ru.practicum.ewm.service.user.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -36,6 +39,7 @@ public class EventServiceInternalImpl implements EventServiceInternal {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final RequestRepository requestRepository;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public List<EventShortDto> getEventsOfUserBy(InternalEventFilter filter) {
@@ -174,6 +178,72 @@ public class EventServiceInternalImpl implements EventServiceInternal {
 
         // запись запросов на участие в БД
         requestRepository.saveAll(requests);
+    }
+
+    @Override
+    public EventFullDto patchEventOfUserBy(UpdateEventUserRequest updateEvent) {
+        Long eventId = updateEvent.getEvent();
+        Event currentEvent = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(
+                String.format("Event id=%d not found", eventId)));
+
+        String annotation = updateEvent.getAnnotation() == null ?
+                currentEvent.getAnnotation() : updateEvent.getAnnotation();
+        currentEvent.setAnnotation(annotation);
+
+
+        if (updateEvent.getCategory() != null) {
+            if (!updateEvent.getCategory().equals(currentEvent.getCategory().getId())) {
+                Long categoryId = updateEvent.getCategory();
+                Category category = categoryRepository.findById(categoryId).orElseThrow(() -> {
+                    String message = String.format("Unable to get category id=%d", categoryId);
+                    log.warn(message);
+                    return new NotFoundException(message);
+                });
+                currentEvent.setCategory(category);
+            }
+        }
+
+        String description = updateEvent.getDescription() == null ?
+                currentEvent.getDescription() : updateEvent.getDescription();
+        currentEvent.setDescription(description);
+
+        LocalDateTime eventDate = updateEvent.getEventDate() == null ?
+                currentEvent.getEventDate() : updateEvent.getEventDate();
+        currentEvent.setEventDate(eventDate);
+
+        Location location = updateEvent.getLocation() == null ?
+                currentEvent.getLocation() : updateEvent.getLocation();
+        currentEvent.setLocation(location);
+
+        Boolean paid = updateEvent.getPaid() == null ?
+                currentEvent.getPaid() : updateEvent.getPaid();
+        currentEvent.setPaid(paid);
+
+        Integer participantLimit = updateEvent.getParticipantLimit() == null ?
+                currentEvent.getParticipantLimit() : updateEvent.getParticipantLimit();
+        currentEvent.setParticipantLimit(participantLimit);
+
+        Boolean requestModeration = updateEvent.getRequestModeration() == null ?
+                currentEvent.getRequestModeration() : updateEvent.getRequestModeration();
+        currentEvent.setRequestModeration(requestModeration);
+
+
+        if (updateEvent.getStateAction() != null) {
+            StateActionInternal stateAction = updateEvent.getStateAction();
+            if (stateAction == StateActionInternal.CANCEL_REVIEW) {
+                currentEvent.setState(EventState.CANCELED);
+            }
+            if (stateAction == StateActionInternal.SEND_TO_REVIEW) {
+                currentEvent.setState(EventState.PENDING);
+            }
+        }
+
+        String title = updateEvent.getTitle() == null ?
+                currentEvent.getTitle() : updateEvent.getTitle();
+
+        Event event = eventRepository.save(currentEvent);
+
+        return EventMapper.toEventFullDto(event);
     }
 
     private ParticipationRequest getRequestBy(Long userId, Long eventId) {

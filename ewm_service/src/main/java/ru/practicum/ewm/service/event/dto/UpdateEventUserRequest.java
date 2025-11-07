@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import ru.practicum.ewm.service.event.enums.StateActionAdmin;
+import ru.practicum.ewm.service.event.enums.StateActionInternal;
 
 @Getter
 @Setter
@@ -13,5 +13,5 @@ import ru.practicum.ewm.service.event.enums.StateActionAdmin;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateEventUserRequest extends UpdateEventRequest {
-    StateActionAdmin stateAction;
+    StateActionInternal stateAction;
 }
