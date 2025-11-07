@@ -1,5 +1,6 @@
 package ru.practicum.ewm.service.event.controller;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.event.enums.EventState;
@@ -54,7 +56,7 @@ public class EventControllerAdminAPI {
      * @example GET /admin/events?users=1,2,3&states=PENDING,PUBLISHED&categories=1,2&rangeStart=2024-01-01T00:00:00&rangeEnd=2024-12-31T23:59:59
      */
     @GetMapping
-    public List<EventShortDto> getEventsFilteredBy(
+    public List<EventFullDto> getEventsFilteredBy(
             @RequestParam(name = "users", required = false) List<Long> users,
             @RequestParam(name = "states", required = false) List<EventState> states,
             @RequestParam(name = "categories", required = false) List<Long> categories,
@@ -76,7 +78,7 @@ public class EventControllerAdminAPI {
         List<Long> validatedUsers = validateIdsList(users);
         List<Long> validatedCategories = validateIdsList(categories);
 
-        List<EventShortDto> responseList = adminEventService.getEventsFilteredBy(AdminEventFilter.builder()
+        List<EventFullDto> responseList = adminEventService.getEventsFilteredBy(AdminEventFilter.builder()
                 .users(validatedUsers)
                 .states(states)
                 .categories(validatedCategories)
@@ -90,8 +92,8 @@ public class EventControllerAdminAPI {
     }
 
     @PatchMapping("/{eventId}")
-    public EventShortDto patchEventById(
-            @PathVariable("eventId") Long eventId,
+    public EventFullDto patchEventById(
+            @PathVariable("eventId") @Positive @NotNull Long eventId,
             @RequestBody UpdateEventAdminRequest updateEventAdminRequest
     ) {
         log.info("PATCH /events/id with id={}", eventId);

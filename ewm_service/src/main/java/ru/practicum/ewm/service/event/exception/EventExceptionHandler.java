@@ -1,12 +1,10 @@
 package ru.practicum.ewm.service.event.exception;
 
-import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.ewm.service.event.util.DateTimeFormatUtil;
 
 /**
  * Глобальный обработчик исключений для событий.
@@ -58,14 +56,14 @@ public class EventExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError badRequestException(final ConstraintViolationException exception) {
-        log.warn(exception.toString());
-        return ApiError.builder()
-                .message(exception.getMessage())
-                .status(HttpStatus.BAD_REQUEST)
-                .timeStamp(DateTimeFormatUtil.getLocalDateTimeStr())
-                .build();
-    }
+//    @ExceptionHandler
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public ApiError badRequestException(final ConstraintViolationException exception) {
+//        log.warn(exception.toString());
+//        return ApiError.builder()
+//                .message(exception.getMessage())
+//                .status(HttpStatus.BAD_REQUEST)
+//                .timeStamp(DateTimeFormatUtil.getLocalDateTimeStr())
+//                .build();
+//    }
 }

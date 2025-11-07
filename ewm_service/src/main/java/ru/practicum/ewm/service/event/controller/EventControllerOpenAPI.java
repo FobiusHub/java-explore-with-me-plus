@@ -1,6 +1,7 @@
 package ru.practicum.ewm.service.event.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
@@ -123,7 +124,7 @@ public class EventControllerOpenAPI {
      * @example GET /events/14
      */
     @GetMapping("/{id}")
-    public EventFullDto getEventById(@PathVariable("id") @Positive Long id, HttpServletRequest request
+    public EventFullDto getEventById(@PathVariable("id") @Positive @NotNull Long id, HttpServletRequest request
     ) {
         log.info("GET /events/{}", id);
         EventFullDto event = eventServiceOpen.getEventById(id, request);

@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.service.category.model.Category;
 import ru.practicum.ewm.service.category.repository.CategoryRepository;
+import ru.practicum.ewm.service.common.exception.ConflictException;
 import ru.practicum.ewm.service.common.exception.NotFoundException;
+import ru.practicum.ewm.service.event.dto.EventFullDto;
 import ru.practicum.ewm.service.event.dto.EventShortDto;
 import ru.practicum.ewm.service.event.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.event.enums.EventState;
@@ -48,29 +50,33 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
      * @apiNote В отличие от публичного API, позволяет фильтровать по пользователям и состояниям
      */
     @Override
-    public List<EventShortDto> getEventsFilteredBy(AdminEventFilter adminEventFilter) {
+    public List<EventFullDto> getEventsFilteredBy(AdminEventFilter adminEventFilter) {
 
-        return eventRepository.findAllByFilter(adminEventFilter).stream().map(EventMapper::toEventShortDto).toList();
+        return eventRepository.findAllByFilter(adminEventFilter)
+                .stream()
+                .map(EventMapper::toEventFullDto)
+                .toList();
     }
 
     @Override
-    public EventShortDto patchEvent(UpdateEventAdminRequest updateEvent, Long eventId) {
-        Event currentEvent = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(String.format("Event id=%d not found", eventId)));
+    public EventFullDto patchEvent(UpdateEventAdminRequest updateEvent, Long eventId) {
+        Event currentEvent = eventRepository.findById(eventId).orElseThrow(
+                () -> new EventNotFoundException(String.format("Event id=%d not found", eventId)));
 
+        /*
+         * обновление статуса текущего события
+         */
         if (updateEvent.getStateAction() != null) {
-            /*
-             * обновление статуса текущего события
-             */
             StateActionAdmin stateAction = updateEvent.getStateAction();
             switch (stateAction) {
                 /*
                  * событие можно отклонить, только если оно еще не опубликовано
                  * (Ожидается код ошибки 409)
                  */
-                case StateActionAdmin.CANCEL_EVENT:
+                case StateActionAdmin.REJECT_EVENT:
                     if (currentEvent.getStatus() == EventState.PUBLISHED) {
-                        String message = String.format("Cannot cancel event. Event status: %s", EventState.PUBLISHED);
-                        throw new BadRequestException(message);
+                        String message = ("Cannot cancel event. Event already published");
+                        throw new ConflictException(message);
                     }
                     currentEvent.setStatus(EventState.CANCELED);
                     break;
@@ -83,7 +89,7 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
                     if (currentEvent.getStatus() != EventState.PENDING) {
                         String message = String.format("Event must be in PENDING state. " +
                                 "Current event state: %s", currentEvent.getStatus());
-                        throw new BadRequestException(message);
+                        throw new ConflictException(message);
                     }
                     LocalDateTime currentDate = LocalDateTime.now();
                     LocalDateTime dateEvent = currentEvent.getEventDate();
@@ -135,7 +141,8 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
                 currentEvent.getLocation() : updateEvent.getLocation();
         currentEvent.setLocation(location);
 
-        boolean paid = updateEvent.getPaid();
+        Boolean paid = updateEvent.getPaid() == null ?
+                currentEvent.getPaid() : updateEvent.getPaid();
         currentEvent.setPaid(paid);
 
         Integer participantLimit = updateEvent.getParticipantLimit() == null ?
@@ -153,6 +160,6 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
         Event eventResponse = eventRepository.save(currentEvent);
         log.info("Event id={} has been updated", eventId);
 
-        return EventMapper.toEventShortDto(eventResponse);
+        return EventMapper.toEventFullDto(eventResponse);
     }
 }

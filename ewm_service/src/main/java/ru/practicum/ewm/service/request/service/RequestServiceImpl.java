@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.service.common.exception.NotFoundException;
 import ru.practicum.ewm.service.common.exception.ValidationException;
-import ru.practicum.ewm.service.event.enums.EventState;
 import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.repository.EventRepository;
 import ru.practicum.ewm.service.request.dto.ParticipationRequestDto;
@@ -40,13 +39,22 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ParticipationRequestDto createRequest(long userId, long eventId) {
+        if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
+            log.warn("Нельзя добавить повторный запрос");
+            throw new ValidationException("Нельзя добавить повторный запрос");
+        }
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> {
                     log.warn("При запросе данных события возникла ошибка: Событие не найдено");
                     return new NotFoundException("Событие " + eventId + " не найдено");
                 });
 
-        validateRequest(userId, eventId, event);
+        if (event.getInitiator().getId() == userId) {
+            String message = "Инициатор события не может добавить запрос на участие в своём событии";
+            log.warn(message);
+            throw new ValidationException(message);
+        }
+
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
@@ -92,29 +100,5 @@ public class RequestServiceImpl implements RequestService {
         requestRepository.save(request);
 
         return RequestMapper.toRequestDto(request);
-    }
-
-    private void validateRequest(long userId, long eventId, Event event) {
-        if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
-            log.warn("Нельзя добавить повторный запрос");
-            throw new ValidationException("Нельзя добавить повторный запрос");
-        }
-
-        if (event.getInitiator().getId() == userId) {
-            log.warn("Инициатор события не может добавить запрос на участие в своём событии");
-            throw new ValidationException("Инициатор события не может добавить запрос на участие в своём событии");
-        }
-
-        if (!event.getStatus().equals(EventState.PUBLISHED)) {
-            log.warn("Нельзя участвовать в неопубликованном событии");
-            throw new ValidationException("Нельзя участвовать в неопубликованном событии");
-        }
-
-        Long confirmed = event.getConfirmedRequests();
-        Integer limit = event.getParticipantLimit();
-        if (confirmed != null && limit != null && confirmed == limit.longValue()) {
-            log.warn("Достигнут лимит запросов на участие");
-            throw new ValidationException("Достигнут лимит запросов на участие");
-        }
     }
 }

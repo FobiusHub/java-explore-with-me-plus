@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.service.category.model.Category;
 import ru.practicum.ewm.service.category.repository.CategoryRepository;
+import ru.practicum.ewm.service.common.exception.ConflictException;
 import ru.practicum.ewm.service.common.exception.NotFoundException;
 import ru.practicum.ewm.service.event.dto.*;
 import ru.practicum.ewm.service.event.enums.EventState;
@@ -20,12 +21,10 @@ import ru.practicum.ewm.service.event.service.EventServiceInternal;
 import ru.practicum.ewm.service.event.util.EventBuilder;
 import ru.practicum.ewm.service.event.util.EventMapper;
 import ru.practicum.ewm.service.request.dto.ParticipationRequestDto;
-import ru.practicum.ewm.service.event.dto.UpdateRequestDto;
 import ru.practicum.ewm.service.request.mapper.RequestMapper;
 import ru.practicum.ewm.service.request.model.ParticipationRequest;
 import ru.practicum.ewm.service.request.model.RequestStatus;
 import ru.practicum.ewm.service.request.repository.RequestRepository;
-import ru.practicum.ewm.service.user.model.User;
 import ru.practicum.ewm.service.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
@@ -107,15 +106,15 @@ public class EventServiceInternalImpl implements EventServiceInternal {
             }
         }
 
-        // проверка, что пользователь является инициатором события
-        if (currentEvent.getInitiator() != null) {
-            User initiator = currentEvent.getInitiator();
-            Long initiatorId = initiator.getId();
-            if (!initiatorId.equals(userId)) {
-                String message = String.format("User id=%d is not initiator of event id=%d", userId, eventId);
-                throw new BadRequestException(message);
-            }
-        }
+//        // проверка, что пользователь является инициатором события
+//        if (currentEvent.getInitiator() != null) {
+//            User initiator = currentEvent.getInitiator();
+//            Long initiatorId = initiator.getId();
+//            if (!initiatorId.equals(userId)) {
+//                String message = String.format("User id=%d is not initiator of event id=%d", userId, eventId);
+//                throw new BadRequestException(message);
+//            }
+//        }
 
         // проверка по флагу, что событие требует модерации
         if (currentEvent.getRequestModeration() != null) {
@@ -133,7 +132,7 @@ public class EventServiceInternalImpl implements EventServiceInternal {
                 if (value >= limit) {
                     String message = String.format("Unable to confirm request. Participant limit of requests: %d. " +
                             "Confirmed requests: %d", limit, value);
-                    throw new BadRequestException(message);
+                    throw new ConflictException(message);
                 }
             }
         }
@@ -149,7 +148,7 @@ public class EventServiceInternalImpl implements EventServiceInternal {
         // если по списку id-запросов не участия не найдено ни одного объекта
         if (requests.isEmpty()) {
             String message = "There are no elements (participant requests) satisfying the request";
-            throw new BadRequestException(message); // или return - пока хз по тз
+            throw new ConflictException(message); // или return - пока хз по тз
         }
 
         // если хотя бы у одного из полученных запросов на участие статус не PENDING
@@ -157,7 +156,7 @@ public class EventServiceInternalImpl implements EventServiceInternal {
             if (request.getStatus() != RequestStatus.PENDING) {
                 String message = String.format("Extended request status: %s, current request id=%d status: %s",
                         RequestStatus.PENDING, eventId, request.getStatus());
-                throw new BadRequestException(message);
+                throw new ConflictException(message);
             }
         }
 
@@ -177,18 +176,16 @@ public class EventServiceInternalImpl implements EventServiceInternal {
         requests.forEach(r -> r.setStatus(newStatus));
 
         // запись запросов на участие в БД
-        requestRepository.saveAll(requests);
-    }
-
+        request
     @Override
     public EventFullDto patchEventOfUserBy(UpdateEventUserRequest updateEvent, Long userId, Long eventId) {
         Event currentEvent = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(
                 String.format("Event id=%d not found", eventId)));
 
-        if (!currentEvent.getInitiator().getId().equals(userId)) {
-            String message = String.format("User id=%d is not initiator of event id=%d", userId, eventId);
-            throw new BadRequestException(message);
-        }
+//        if (!currentEvent.getInitiator().getId().equals(userId)) {
+//            String message = String.format("User id=%d is not initiator of event id=%d", userId, eventId);
+//            throw new BadRequestException(message);
+//        }
 
         String annotation = updateEvent.getAnnotation() == null ?
                 currentEvent.getAnnotation() : updateEvent.getAnnotation();
