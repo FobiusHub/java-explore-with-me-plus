@@ -56,7 +56,7 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
     }
 
     @Override
-    public void patchEvent(UpdateEventDto eventToUpdate) {
+    public EventShortDto patchEvent(UpdateEventDto eventToUpdate) {
         Long eventId = eventToUpdate.getId();
 
         Event currentEvent = getEvent(eventId);
@@ -150,8 +150,10 @@ public class EventServiceAdminImpl implements EventServiceAdmin {
             currentEvent.setTitle(title);
         }
 
-        eventRepository.save(currentEvent);
+        Event eventResponse = eventRepository.save(currentEvent);
         log.info("Event id={} has been updated", eventId);
+
+        return EventMapper.toEventShortDto(eventResponse);
     }
 
     private Category getCategory(Long id) {
