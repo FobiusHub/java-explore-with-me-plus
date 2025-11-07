@@ -1,6 +1,7 @@
 package ru.practicum.ewm.service.compilation.controller;
 
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ public class CompilationAdminController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CompilationDto create(@RequestBody NewCompilationDto dto) {
+    public CompilationDto create(@RequestBody @Valid NewCompilationDto dto) {
         log.info("АДМИН API: создание подборки title={}", dto.getTitle());
         return service.create(dto);
     }
@@ -37,7 +38,6 @@ public class CompilationAdminController {
             @PathVariable @Positive Long compId,
             @RequestBody(required = false) UpdateCompilationRequest dto
     ) {
-        // Пропускаем PATCH без тела
         if (dto == null) {
             log.info("АДМИН API: PATCH /admin/compilations/{} получено пустое тело — применяем пустой DTO", compId);
             dto = UpdateCompilationRequest.builder().build();

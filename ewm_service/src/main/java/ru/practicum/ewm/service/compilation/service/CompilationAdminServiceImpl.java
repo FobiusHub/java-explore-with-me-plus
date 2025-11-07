@@ -19,7 +19,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional(readOnly= true)
 @Slf4j
 public class CompilationAdminServiceImpl implements CompilationAdminService {
 
@@ -39,7 +39,7 @@ public class CompilationAdminServiceImpl implements CompilationAdminService {
         Compilation compilation = CompilationMapper.toEntity(dto);
         compilation = repository.save(compilation);
 
-        List<EventShortDto> events = loadEventShortDtos(compilation);
+        List<EventShortDto> events= loadEventShortDtos(compilation);
 
         log.info("ADMIN: подборка создана id={}", compilation.getId());
         return CompilationMapper.toDto(compilation, events);
@@ -54,7 +54,7 @@ public class CompilationAdminServiceImpl implements CompilationAdminService {
             throw new CompilationNotFoundException(compId);
         }
         repository.deleteById(compId);
-        log.info("ADMIN: подборка удалена id={}", compId);
+        log.info("ADMIN: подборка удалена id={}",compId);
     }
 
     @Transactional
@@ -84,7 +84,7 @@ public class CompilationAdminServiceImpl implements CompilationAdminService {
             compilation.setEvents(dto.getEvents());
         }
 
-        compilation = repository.save(compilation);
+compilation = repository.save(compilation);
 
         List<EventShortDto> events = loadEventShortDtos(compilation);
 
