@@ -157,10 +157,9 @@ public class EventServiceInternalImpl implements EventServiceInternal {
             }
         }
 
-
         // проверка, что после подтверждения всех запросов на участие не будет превышен лимит участников события
         Integer limit = event.getParticipantLimit();
-        Integer confirmedRequests = event.getConfirmedParticipantRequests();
+        Integer confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
         int countOfAllowedNumbers = limit - confirmedRequests;
         if (requests.size() > countOfAllowedNumbers) {
             String message = String.format("The participant limit=%d has been reached", limit);

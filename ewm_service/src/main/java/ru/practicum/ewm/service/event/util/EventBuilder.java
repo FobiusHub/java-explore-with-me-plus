@@ -30,12 +30,12 @@ public class EventBuilder {
         Long categoryId = newEventDto.getCategory();
         Category category = getCategory(categoryId);
 
-        long DEFAULT_CONFIRMED_REQUESTS = 0L;
-        long DEFAULT_VIEWS = 0L;
+        long defaultConfirmedRequests = 0L;
+        long defaultVies = 0L;
         return Event.builder()
                 .annotation(newEventDto.getAnnotation())
                 .category(category)
-                .confirmedRequests(DEFAULT_CONFIRMED_REQUESTS)
+                .confirmedRequests(defaultConfirmedRequests)
                 .createdOn(LocalDateTime.now())
                 .description(newEventDto.getDescription())
                 .eventDate(newEventDto.getEventDate())
@@ -47,7 +47,7 @@ public class EventBuilder {
                 .requestModeration(newEventDto.getRequestModeration())
                 .state(EventState.PENDING)
                 .title(newEventDto.getTitle())
-                .views(DEFAULT_VIEWS).build();
+                .views(defaultVies).build();
     }
 
     public Event buildEventBy(UpdateEventDto newEventDto) {
@@ -57,12 +57,12 @@ public class EventBuilder {
         Long categoryId = newEventDto.getCategory();
         Category category = getCategory(categoryId);
 
-        long DEFAULT_CONFIRMED_REQUESTS = 0L;
-        long DEFAULT_VIEWS = 0L;
+        long defaultConfirmedRequests = 0L;
+        long defaultViews = 0L;
         return Event.builder()
                 .annotation(newEventDto.getAnnotation())
                 .category(category)
-                .confirmedRequests(DEFAULT_CONFIRMED_REQUESTS)
+                .confirmedRequests(defaultConfirmedRequests)
                 .createdOn(LocalDateTime.now())
                 .description(newEventDto.getDescription())
                 .eventDate(newEventDto.getEventDate())
@@ -74,7 +74,7 @@ public class EventBuilder {
                 .requestModeration(newEventDto.getRequestModeration())
                 .state(EventState.PUBLISHED)
                 .title(newEventDto.getTitle())
-                .views(DEFAULT_VIEWS).build();
+                .views(defaultViews).build();
     }
 
     private User getUser(Long userId) {
