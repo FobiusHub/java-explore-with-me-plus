@@ -21,6 +21,9 @@ public class EventMapper {
      * @return объект {@link EventShortDto} с основной информацией о событии
      */
     public static EventShortDto toEventShortDto(Event event) {
+        if (event == null) {
+            return null;
+        }
 
         CategoryDto category = event.getCategory() == null ? null :
                 CategoryMapper.toCategoryDto(event.getCategory());
@@ -48,6 +51,9 @@ public class EventMapper {
      * @return объект {@link EventFullDto} с основной информацией о событии
      */
     public static EventFullDto toEventFullDto(Event event) {
+        if (event == null) {
+            return null;
+        }
 
         CategoryDto category = event.getCategory() == null ? null :
                 CategoryMapper.toCategoryDto(event.getCategory());

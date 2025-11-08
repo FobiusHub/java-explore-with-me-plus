@@ -24,45 +24,45 @@ public class OpenEventFilterRepositoryImpl implements OpenEventFilterRepository 
         List<Predicate> predicates = new ArrayList<>();
 
         // Фильтрация для аннотации по тексту
-        if (publicEventFilter.text() != null && !publicEventFilter.text().isBlank()) {
-            String value = "%" + publicEventFilter.text().trim().toLowerCase() + "%";
+        if (publicEventFilter.getText() != null && !publicEventFilter.getText().isBlank()) {
+            String value = "%" + publicEventFilter.getText().trim().toLowerCase() + "%";
             Expression<String> expression = root.get("annotation");
             Predicate predicate = criteriaBuilder.like(criteriaBuilder.lower(expression), value);
             predicates.add(predicate);
         }
 
         // Фильтрация по категориям по id-списку категорий
-        if (publicEventFilter.categories() != null && !publicEventFilter.categories().isEmpty()) {
-            List<Long> categoryIds = publicEventFilter.categories();
+        if (publicEventFilter.getCategories() != null && !publicEventFilter.getCategories().isEmpty()) {
+            List<Long> categoryIds = publicEventFilter.getCategories();
             Predicate predicate = root.get("category").get("id").in(categoryIds);
             predicates.add(predicate);
         }
 
         // Фильтрация по статусу оплаты (true-false)
-        if (publicEventFilter.paid() != null) {
-            Boolean value = publicEventFilter.paid();
+        if (publicEventFilter.getPaid() != null) {
+            Boolean value = publicEventFilter.getPaid();
             Expression<Boolean> expression = root.get("paid");
             Predicate predicate = criteriaBuilder.equal(expression, value);
             predicates.add(predicate);
         }
 
         // Фильтрация по дате события (начало периода)
-        if (publicEventFilter.rangeStart() != null) {
-            LocalDateTime value = publicEventFilter.rangeStart();
+        if (publicEventFilter.getRangeStart() != null) {
+            LocalDateTime value = publicEventFilter.getRangeStart();
             Expression<LocalDateTime> expression = root.get("eventDate");
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(expression, value));
         }
 
         // Фильтрация по дате события (окончание периода)
-        if (publicEventFilter.rangeEnd() != null) {
-            LocalDateTime value = publicEventFilter.rangeEnd();
+        if (publicEventFilter.getRangeEnd() != null) {
+            LocalDateTime value = publicEventFilter.getRangeEnd();
             Expression<LocalDateTime> expression = root.get("eventDate");
             predicates.add(criteriaBuilder.lessThanOrEqualTo(expression, value));
         }
 
         // Фильтрация по лимиту запросов на участие в событии
-        if (publicEventFilter.onlyAvailable() != null) {
-            Boolean value = publicEventFilter.onlyAvailable();
+        if (publicEventFilter.getOnlyAvailable() != null) {
+            Boolean value = publicEventFilter.getOnlyAvailable();
             Expression<Integer> expression = root.get("participantLimit");
             Integer participantLimit = 0;
             Predicate predicate;
@@ -74,9 +74,13 @@ public class OpenEventFilterRepositoryImpl implements OpenEventFilterRepository 
             predicates.add(predicate);
         }
 
+        if (!predicates.isEmpty()) {
+            query.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
+        }
+
         // Сортировка...
-        if (publicEventFilter.sort() != null) {
-            switch (publicEventFilter.sort()) {
+        if (publicEventFilter.getSort() != null) {
+            switch (publicEventFilter.getSort()) {
                 // ...по дате события
                 case EVENT_DATE:
                     query.orderBy(criteriaBuilder.asc(root.get("eventDate")));
@@ -95,16 +99,14 @@ public class OpenEventFilterRepositoryImpl implements OpenEventFilterRepository 
         TypedQuery<Event> typedQuery = entityManager.createQuery(query);
 
         // количество событий, которые нужно пропустить для формирования текущего набора
-        if (publicEventFilter.from() != null) {
-            typedQuery.setFirstResult(publicEventFilter.from());
+        if (publicEventFilter.getFrom() != null) {
+            typedQuery.setFirstResult(publicEventFilter.getFrom());
         }
 
         // количество событий в наборе
-        if (publicEventFilter.size() != null) {
-            typedQuery.setMaxResults(publicEventFilter.size());
+        if (publicEventFilter.getSize() != null) {
+            typedQuery.setMaxResults(publicEventFilter.getSize());
         }
-
-        query.where(predicates.toArray(Predicate[]::new));
 
         return typedQuery.getResultList();
     }

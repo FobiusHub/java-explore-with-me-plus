@@ -155,7 +155,7 @@ public class EventServiceInternalImpl implements EventServiceInternal {
         List<ParticipationRequest> requests = requestRepository.findByIdInAndEventId(requestIds, eventId);
 
         // если по списку id-запросов не участия не найдено ни одного объекта
-        if (requests.isEmpty()) {
+        if (requests == null || requests.isEmpty()) {
             String message = "There are no elements (participant requests) satisfying the request";
             throw new ConflictException(message); // или return - пока хз по тз
         }
@@ -265,6 +265,12 @@ public class EventServiceInternalImpl implements EventServiceInternal {
     }
 
     private ParticipationRequest getRequestBy(Long userId, Long eventId) {
-        return requestRepository.findByRequesterIdAndEventId(userId, eventId);
+        ParticipationRequest request = requestRepository.findByRequesterIdAndEventId(userId, eventId);
+        if (request == null) {
+            String message = String.format("There are no request (participant requests) satisfying the request, " +
+                    "userId=%d eventId=%d", userId, eventId);
+            throw new ConflictException(message);
+        }
+        return request;
     }
 }

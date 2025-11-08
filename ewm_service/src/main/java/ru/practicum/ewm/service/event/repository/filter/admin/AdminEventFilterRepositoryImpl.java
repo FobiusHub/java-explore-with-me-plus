@@ -30,36 +30,36 @@ public class AdminEventFilterRepositoryImpl implements AdminEventFilterRepositor
         List<Predicate> predicates = new ArrayList<>();
 
         // Фильтрация по списку id-пользователей
-        if (adminEventFilter.users() != null && !adminEventFilter.users().isEmpty()) {
-            List<Long> users = adminEventFilter.users();
+        if (adminEventFilter.getUsers() != null && !adminEventFilter.getUsers().isEmpty()) {
+            List<Long> users = adminEventFilter.getUsers();
             Predicate predicate = userJoin.get("id").in(users);
             predicates.add(predicate);
         }
 
         // Фильтрация по списку состояний
-        if (adminEventFilter.states() != null && !adminEventFilter.states().isEmpty()) {
-            List<EventState> eventStates = adminEventFilter.states();
+        if (adminEventFilter.getStates() != null && !adminEventFilter.getStates().isEmpty()) {
+            List<EventState> eventStates = adminEventFilter.getStates();
             Predicate predicate = root.get("status").in(eventStates);
             predicates.add(predicate);
         }
 
         // Фильтрация по категориям
-        if (adminEventFilter.categories() != null && !adminEventFilter.categories().isEmpty()) {
-            List<Long> categories = adminEventFilter.categories();
+        if (adminEventFilter.getCategories() != null && !adminEventFilter.getCategories().isEmpty()) {
+            List<Long> categories = adminEventFilter.getCategories();
             Predicate predicate = categoryJoin.get("id").in(categories);
             predicates.add(predicate);
         }
 
         // Фильтрация по дате события (начало периода)
-        if (adminEventFilter.rangeStart() != null) {
-            LocalDateTime value = adminEventFilter.rangeStart();
+        if (adminEventFilter.getRangeStart() != null) {
+            LocalDateTime value = adminEventFilter.getRangeStart();
             Expression<LocalDateTime> expression = root.get("eventDate");
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(expression, value));
         }
 
         // Фильтрация по дате события (окончание периода)
-        if (adminEventFilter.rangeEnd() != null) {
-            LocalDateTime value = adminEventFilter.rangeEnd();
+        if (adminEventFilter.getRangeEnd() != null) {
+            LocalDateTime value = adminEventFilter.getRangeEnd();
             Expression<LocalDateTime> expression = root.get("eventDate");
             predicates.add(criteriaBuilder.lessThanOrEqualTo(expression, value));
         }
@@ -78,12 +78,12 @@ public class AdminEventFilterRepositoryImpl implements AdminEventFilterRepositor
         TypedQuery<Event> typedQuery = entityManager.createQuery(query);
 
         // Пагинация
-        if (adminEventFilter.from() != null) {
-            typedQuery.setFirstResult(adminEventFilter.from());
+        if (adminEventFilter.getFrom() != null) {
+            typedQuery.setFirstResult(adminEventFilter.getFrom());
         }
 
-        if (adminEventFilter.size() != null) {
-            typedQuery.setMaxResults(adminEventFilter.size());
+        if (adminEventFilter.getSize() != null) {
+            typedQuery.setMaxResults(adminEventFilter.getSize());
         }
 
         return typedQuery.getResultList();
