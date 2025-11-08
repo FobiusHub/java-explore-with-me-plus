@@ -10,5 +10,3 @@ public record InternalEventFilter(
         Integer size
 ) {
 };
-
-

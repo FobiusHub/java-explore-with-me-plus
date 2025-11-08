@@ -25,6 +25,7 @@ import ru.practicum.ewm.service.request.mapper.RequestMapper;
 import ru.practicum.ewm.service.request.model.ParticipationRequest;
 import ru.practicum.ewm.service.request.model.RequestStatus;
 import ru.practicum.ewm.service.request.repository.RequestRepository;
+import ru.practicum.ewm.service.user.model.User;
 import ru.practicum.ewm.service.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
@@ -101,9 +102,9 @@ public class EventServiceInternalImpl implements EventServiceInternal {
 
         // проверка, что запрос на обновление статуса запроса - CONFIRMED
         if (currentEvent.getStatus() != EventState.PUBLISHED) {
-            String message = String.format("Required request status: %s. Current request status: %s",
-                    RequestStatus.CONFIRMED, updateRequestDto.getStatus());
-            throw new BadRequestException(message);
+            String message = String.format("Required event status: %s. Current request status: %s",
+                    EventState.PUBLISHED, currentEvent.getStatus());
+            throw new ConflictException(message);
         }
 
         // проверка, что у события неограниченный лимит участников (модерация не требуется)
@@ -114,15 +115,15 @@ public class EventServiceInternalImpl implements EventServiceInternal {
             }
         }
 
-//        // проверка, что пользователь является инициатором события
-//        if (currentEvent.getInitiator() != null) {
-//            User initiator = currentEvent.getInitiator();
-//            Long initiatorId = initiator.getId();
-//            if (!initiatorId.equals(userId)) {
-//                String message = String.format("User id=%d is not initiator of event id=%d", userId, eventId);
-//                throw new BadRequestException(message);
-//            }
-//        }
+        // проверка, что пользователь является инициатором события
+        if (currentEvent.getInitiator() != null) {
+            User initiator = currentEvent.getInitiator();
+            Long initiatorId = initiator.getId();
+            if (!initiatorId.equals(userId)) {
+                String message = String.format("User id=%d is not initiator of event id=%d", userId, eventId);
+                throw new BadRequestException(message);
+            }
+        }
 
         // проверка по флагу, что событие требует модерации
         if (currentEvent.getRequestModeration() != null) {
@@ -192,10 +193,10 @@ public class EventServiceInternalImpl implements EventServiceInternal {
         Event currentEvent = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(
                 String.format("Event id=%d not found", eventId)));
 
-//        if (!currentEvent.getInitiator().getId().equals(userId)) {
-//            String message = String.format("User id=%d is not initiator of event id=%d", userId, eventId);
-//            throw new BadRequestException(message);
-//        }
+        if (userId != null && !currentEvent.getInitiator().getId().equals(userId)) {
+            String message = String.format("User id=%d is not initiator of event id=%d", userId, eventId);
+            throw new BadRequestException(message);
+        }
 
         if (currentEvent.getStatus() == EventState.PUBLISHED) {
             String message = "";

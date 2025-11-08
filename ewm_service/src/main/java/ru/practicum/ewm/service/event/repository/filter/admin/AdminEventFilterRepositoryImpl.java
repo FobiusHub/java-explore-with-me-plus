@@ -39,7 +39,7 @@ public class AdminEventFilterRepositoryImpl implements AdminEventFilterRepositor
         // Фильтрация по списку состояний
         if (adminEventFilter.states() != null && !adminEventFilter.states().isEmpty()) {
             List<EventState> eventStates = adminEventFilter.states();
-            Predicate predicate = root.get("state").in(eventStates);
+            Predicate predicate = root.get("status").in(eventStates);
             predicates.add(predicate);
         }
 
