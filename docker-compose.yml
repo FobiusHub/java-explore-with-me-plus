@@ -1,80 +1,50 @@
 services:
   stats-db:
-    image: postgres:16.1
+    image: postgres:16
     environment:
       POSTGRES_DB: stats
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5460:5432"
-    volumes:
-      - stats-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d stats"]
-      interval: 5s
-      timeout: 3s
-      retries: 30
-    restart: unless-stopped
 
   ewm-db:
-    image: postgres:16.1
+    image: postgres:16
     environment:
       POSTGRES_DB: ewm
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5433:5432"
-    volumes:
-      - ./ewm_service/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ewm"]
-      interval: 5s
-      timeout: 3s
-      retries: 30
-    restart: unless-stopped
 
   stats-server:
     build:
       context: .
       dockerfile: stat_svc/service/Dockerfile
-    depends_on:
-      stats-db:
-        condition: service_healthy
     environment:
+      SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SERVER_PORT: "9090"
-      SERVER_ADDRESS: "::"
-      JAVA_TOOL_OPTIONS: "-Djava.net.preferIPv6Addresses=true -XX:TieredStopAtLevel=1 -Xms128m -Xmx512m"
+    depends_on:
+      - stats-db
     ports:
       - "9090:9090"
-    restart: unless-stopped
 
   ewm-service:
     build:
       context: .
       dockerfile: ewm_service/Dockerfile
-    depends_on:
-      ewm-db:
-        condition: service_healthy
-      stats-server:
-        condition: service_started
     environment:
+      SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SERVER_PORT: "8080"
-      SERVER_ADDRESS: "::"                    # слушаем IPv6 (dual-stack)
       EWM_STATS_URL: http://stats-server:9090
-      SPRING_SQL_INIT_MODE: "never"
-      SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "false"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: "none"
-      SPRING_JPA_OPEN_IN_VIEW: "false"
-      JAVA_TOOL_OPTIONS: "-Djava.net.preferIPv6Addresses=true -XX:TieredStopAtLevel=1 -Xms128m -Xmx512m"
+    depends_on:
+      - ewm-db
+      - stats-server
     ports:
       - "8080:8080"
-    restart: unless-stopped
-
-volumes:
-  stats-data:
