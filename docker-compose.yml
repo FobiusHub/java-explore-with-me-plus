@@ -48,7 +48,7 @@ services:
       SERVER_PORT: "9090"
       SERVER_ADDRESS: "0.0.0.0"
       SPRING_MAIN_LAZY_INITIALIZATION: "true"
-      JAVA_TOOL_OPTIONS: "-Djava.net.preferIPv4Stack=true -XX:TieredStopAtLevel=1 -Xms128m -Xmx512m"
+      JAVA_TOOL_OPTIONS: "-XX:TieredStopAtLevel=1 -Xms128m -Xmx512m"
     # Публикуем и на IPv4, и на IPv6 loopback
     ports:
       - "127.0.0.1:9090:9090"
@@ -76,7 +76,7 @@ services:
       SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "false"
       SPRING_JPA_HIBERNATE_DDL_AUTO: "none"
       SPRING_JPA_OPEN_IN_VIEW: "false"
-      JAVA_TOOL_OPTIONS: "-Djava.net.preferIPv4Stack=true -XX:TieredStopAtLevel=1 -Xms128m -Xmx512m"
+      JAVA_TOOL_OPTIONS: "-XX:TieredStopAtLevel=1 -Xms128m -Xmx512m"
     # Публикуем и на IPv4, и на IPv6 loopback
     ports:
       - "127.0.0.1:8080:8080"
