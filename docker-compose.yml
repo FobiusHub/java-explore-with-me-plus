@@ -1,81 +1,66 @@
 services:
+  stats-server:
+    build: ./stat_svc/service
+    container_name: stats-server
+    ports:
+      - "9090:9090"
+    depends_on:
+      stats-db:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/stats
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    restart: on-failure
+
   stats-db:
     image: postgres:16.1
+    container_name: stats-db
     environment:
-      POSTGRES_DB: stats
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      - POSTGRES_DB=stats
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
       - "5460:5432"
     volumes:
       - stats-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d stats"]
+      test: [ "CMD-SHELL", "pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER" ]
       interval: 5s
-      timeout: 3s
-      retries: 30
-    restart: unless-stopped
-
-  ewm-db:
-    image: postgres:16.1
-    environment:
-      POSTGRES_DB: ewm
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5433:5432"
-    volumes:
-      - ./ewm_service/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ewm"]
-      interval: 5s
-      timeout: 3s
-      retries: 30
-    restart: unless-stopped
-
-  stats-server:
-    build:
-      context: .
-      dockerfile: stat_svc/service/Dockerfile
-    depends_on:
-      stats-db:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      SERVER_PORT: "9090"
-      SERVER_ADDRESS: "0.0.0.0"
-      SPRING_MAIN_LAZY_INITIALIZATION: "true"
-      JAVA_TOOL_OPTIONS: "-Djava.net.preferIPv4Stack=true -XX:TieredStopAtLevel=1 -Xms128m -Xmx512m"
-    ports:
-      - "9090:9090"   # <- БЕЗ 0.0.0.0, чтобы открыть IPv4+IPv6
-    restart: unless-stopped
+      timeout: 5s
+      retries: 10
 
   ewm-service:
-    build:
-      context: .
-      dockerfile: ewm_service/Dockerfile
+    build: ./ewm_service
+    container_name: ewm-service
+    ports:
+      - "8080:8080"
     depends_on:
       ewm-db:
         condition: service_healthy
-      stats-server:
-        condition: service_started
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      SERVER_PORT: "8080"
-      SERVER_ADDRESS: "0.0.0.0"
-      EWM_STATS_URL: http://stats-server:9090
-      SPRING_SQL_INIT_MODE: "never"
-      SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "false"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: "none"
-      SPRING_JPA_OPEN_IN_VIEW: "false"
-      JAVA_TOOL_OPTIONS: "-Djava.net.preferIPv4Stack=true -XX:TieredStopAtLevel=1 -Xms128m -Xmx512m"
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    restart: on-failure
+
+  ewm-db:
+    image: postgres:16.1
+    container_name: ewm-db
+    environment:
+      - POSTGRES_DB=ewm
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
-      - "8080:8080"   # <- БЕЗ 0.0.0.0, чтобы открыть IPv4+IPv6
-    restart: unless-stopped
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   stats-data:
+  postgres_data:
