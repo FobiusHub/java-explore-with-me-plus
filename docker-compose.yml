@@ -24,7 +24,6 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5433:5432"
-    # ВАЖНО: инициализируем схему БД на стороне Postgres один раз при первом старте
     volumes:
       - ./ewm_service/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     healthcheck:
@@ -46,11 +45,11 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SERVER_PORT: "9090"
-      SERVER_ADDRESS: "0.0.0.0"         # <- критично
+      SERVER_ADDRESS: "0.0.0.0"
       SPRING_MAIN_LAZY_INITIALIZATION: "true"
       JAVA_TOOL_OPTIONS: "-Djava.net.preferIPv4Stack=true -XX:TieredStopAtLevel=1 -Xms128m -Xmx512m"
     ports:
-      - "0.0.0.0:9090:9090"             # <- явный IPv4 биндинг
+      - "9090:9090"   # <- БЕЗ 0.0.0.0, чтобы открыть IPv4+IPv6
     restart: unless-stopped
 
   ewm-service:
@@ -67,17 +66,15 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SERVER_PORT: "8080"
-      SERVER_ADDRESS: "0.0.0.0"         # <- критично
+      SERVER_ADDRESS: "0.0.0.0"
       EWM_STATS_URL: http://stats-server:9090
-
       SPRING_SQL_INIT_MODE: "never"
       SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "false"
       SPRING_JPA_HIBERNATE_DDL_AUTO: "none"
       SPRING_JPA_OPEN_IN_VIEW: "false"
-
       JAVA_TOOL_OPTIONS: "-Djava.net.preferIPv4Stack=true -XX:TieredStopAtLevel=1 -Xms128m -Xmx512m"
     ports:
-      - "0.0.0.0:8080:8080"             # <- явный IPv4 биндинг
+      - "8080:8080"   # <- БЕЗ 0.0.0.0, чтобы открыть IPv4+IPv6
     restart: unless-stopped
 
 volumes:
