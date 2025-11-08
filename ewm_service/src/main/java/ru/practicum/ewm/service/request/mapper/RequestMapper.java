@@ -10,8 +10,8 @@ public class RequestMapper {
         ParticipationRequestDto dto = new ParticipationRequestDto();
         dto.setId(request.getId());
         dto.setCreated(request.getCreated());
-        dto.setEvent(request.getId());
-        dto.setRequester(request.getRequester() == null ? 0 : request.getRequester().getId());
+        dto.setEvent(request.getEvent() == null ? null : request.getEvent().getId());
+        dto.setRequester(request.getRequester() == null ? null : request.getRequester().getId());
         dto.setStatus(request.getStatus());
         return dto;
     }

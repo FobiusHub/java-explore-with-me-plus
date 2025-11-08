@@ -121,7 +121,7 @@ public class EventServiceInternalImpl implements EventServiceInternal {
             Long initiatorId = initiator.getId();
             if (!initiatorId.equals(userId)) {
                 String message = String.format("User id=%d is not initiator of event id=%d", userId, eventId);
-                throw new BadRequestException(message);
+                throw new ConflictException(message);
             }
         }
 
@@ -135,7 +135,7 @@ public class EventServiceInternalImpl implements EventServiceInternal {
 
         // проверка, что у события не исчерпан лимит участников
         Integer limit = currentEvent.getParticipantLimit();
-        Long confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
+        long confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
 
         if (limit > 0) { // limit = 0 means unlimited
             if (confirmedRequests >= limit) {

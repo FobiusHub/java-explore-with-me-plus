@@ -60,8 +60,7 @@ public class RequestServiceImpl implements RequestService {
         }
 
         Integer limit = event.getParticipantLimit();
-        Long confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
-
+        long confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
         if (limit > 0) { // limit = 0 means unlimited
             if (confirmedRequests >= limit) {
                 String message = String.format("Лимит участников события id=%d исчерпан. " +
