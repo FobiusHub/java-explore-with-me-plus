@@ -1,10 +1,12 @@
 package ru.practicum.ewm.service.request.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.service.common.exception.NotFoundException;
 import ru.practicum.ewm.service.common.exception.ValidationException;
+import ru.practicum.ewm.service.event.enums.EventState;
 import ru.practicum.ewm.service.event.model.Event;
 import ru.practicum.ewm.service.event.repository.EventRepository;
 import ru.practicum.ewm.service.request.dto.ParticipationRequestDto;
@@ -37,6 +39,7 @@ public class RequestServiceImpl implements RequestService {
                 .toList();
     }
 
+    @Transactional
     @Override
     public ParticipationRequestDto createRequest(long userId, long eventId) {
         if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
@@ -49,12 +52,30 @@ public class RequestServiceImpl implements RequestService {
                     return new NotFoundException("Событие " + eventId + " не найдено");
                 });
 
+        if (!event.getStatus().equals(EventState.PUBLISHED)) {
+            String message = String.format("Нельзя подать заявку на неопубликованное событие. " +
+                    "Текущий статус события: %s", event.getStatus());
+            log.warn(message);
+            throw new ValidationException(message);
+        }
+
+        Integer limit = event.getParticipantLimit();
+        Long confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
+
+        if (limit > 0) { // limit = 0 means unlimited
+            if (confirmedRequests >= limit) {
+                String message = String.format("Лимит участников события id=%d исчерпан. " +
+                        "Лимит участников: %d", eventId, limit);
+                log.warn(message);
+                throw new ValidationException(message);
+            }
+        }
+
         if (event.getInitiator().getId() == userId) {
             String message = "Инициатор события не может добавить запрос на участие в своём событии";
             log.warn(message);
             throw new ValidationException(message);
         }
-
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
@@ -66,7 +87,9 @@ public class RequestServiceImpl implements RequestService {
         request.setRequester(user);
         request.setCreated(LocalDateTime.now());
         request.setEvent(event);
-
+        if (!event.getRequestModeration()) {
+            request.setStatus(RequestStatus.CONFIRMED);
+        }
         request = requestRepository.save(request);
 
         return RequestMapper.toRequestDto(request);
