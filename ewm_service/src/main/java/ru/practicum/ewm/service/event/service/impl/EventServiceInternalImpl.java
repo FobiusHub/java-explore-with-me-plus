@@ -98,6 +98,14 @@ public class EventServiceInternalImpl implements EventServiceInternal {
         Event currentEvent = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(
                 String.format("Event id=%d not found", eventId)));
 
+
+        // проверка, что запрос на обновление статуса запроса - CONFIRMED
+        if (currentEvent.getStatus() != EventState.PUBLISHED) {
+            String message = String.format("Required request status: %s. Current request status: %s",
+                    RequestStatus.CONFIRMED, updateRequestDto.getStatus());
+            throw new BadRequestException(message);
+        }
+
         // проверка, что у события неограниченный лимит участников (модерация не требуется)
         if (currentEvent.getParticipantLimit() != null) {
             if (currentEvent.getParticipantLimit() == 0) {
@@ -125,15 +133,15 @@ public class EventServiceInternalImpl implements EventServiceInternal {
         }
 
         // проверка, что у события не исчерпан лимит участников
-        if (currentEvent.getParticipantLimit() != null) {
-            if (currentEvent.getConfirmedRequests() != null) {
-                int limit = currentEvent.getParticipantLimit();
-                long value = currentEvent.getConfirmedRequests();
-                if (value >= limit) {
-                    String message = String.format("Unable to confirm request. Participant limit of requests: %d. " +
-                            "Confirmed requests: %d", limit, value);
-                    throw new ConflictException(message);
-                }
+        Integer limit = currentEvent.getParticipantLimit();
+        Long confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
+
+        if (limit > 0) { // limit = 0 means unlimited
+            if (confirmedRequests >= limit) {
+                String message = String.format("Limit value of requests is reached. " +
+                        "Current limit: %d, confirmed requests: %d", limit, confirmedRequests);
+                log.warn(message);
+                throw new ConflictException(message);
             }
         }
 
@@ -161,12 +169,12 @@ public class EventServiceInternalImpl implements EventServiceInternal {
         }
 
         // проверка, что после подтверждения всех запросов на участие не будет превышен лимит участников события
-        Long limit = Long.valueOf(currentEvent.getParticipantLimit());
-        Long confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
+        limit = currentEvent.getParticipantLimit();
+        confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
         long countOfAllowedNumbers = limit - confirmedRequests;
         if (requests.size() > countOfAllowedNumbers) {
             String message = String.format("The participant limit=%d has been reached", limit);
-            throw new BadRequestException(message);
+            throw new ConflictException(message);
         }
 
         // новый статус запроса на участие
@@ -188,6 +196,12 @@ public class EventServiceInternalImpl implements EventServiceInternal {
 //            String message = String.format("User id=%d is not initiator of event id=%d", userId, eventId);
 //            throw new BadRequestException(message);
 //        }
+
+        if (currentEvent.getStatus() == EventState.PUBLISHED) {
+            String message = "";
+            log.warn(message);
+            throw new ConflictException(message);
+        }
 
         String annotation = updateEvent.getAnnotation() == null ?
                 currentEvent.getAnnotation() : updateEvent.getAnnotation();
