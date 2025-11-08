@@ -176,7 +176,9 @@ public class EventServiceInternalImpl implements EventServiceInternal {
         requests.forEach(r -> r.setStatus(newStatus));
 
         // запись запросов на участие в БД
-        request
+        requestRepository.saveAll(requests);
+    }
+
     @Override
     public EventFullDto patchEventOfUserBy(UpdateEventUserRequest updateEvent, Long userId, Long eventId) {
         Event currentEvent = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException(

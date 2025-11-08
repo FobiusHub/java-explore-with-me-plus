@@ -1,12 +1,13 @@
 package ru.practicum.ewm.service.request.dto;
 
 import lombok.Data;
+import ru.practicum.ewm.service.request.model.RequestStatus;
 
 import java.time.LocalDateTime;
 
 @Data
 public class ParticipationRequestDto {
-    private long id;
+    private Long id;
 
     private LocalDateTime created;
 
@@ -14,5 +15,5 @@ public class ParticipationRequestDto {
 
     private long requester;
 
-    private String status;
+    private RequestStatus status;
 }
