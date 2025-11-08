@@ -18,8 +18,10 @@ COPY stat_svc/dto/src                      ./stat_svc/dto/src
 COPY stat_svc/client/src                   ./stat_svc/client/src
 COPY ewm_service/src                       ./ewm_service/src
 
-RUN mvn -B -DskipTests -pl ewm_service -am package spring-boot:repackage
+# Сборка только ewm_service с подтягиванием модулей
+RUN mvn -B -q -DskipTests -pl ewm_service -am package spring-boot:repackage
 
+# Выбираем итоговый jar
 RUN set -eux; \
     JAR="$(ls ewm_service/target/*-exec.jar 2>/dev/null || ls ewm_service/target/*.jar | head -n1)"; \
     echo "Using JAR: $JAR"; \
@@ -27,9 +29,14 @@ RUN set -eux; \
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app
+
+# ВАЖНО: жёстко биндимся на 0.0.0.0 и включаем профиль docker
+ENV SERVER_ADDRESS=0.0.0.0 \
+    SERVER_PORT=8080 \
+    SPRING_PROFILES_ACTIVE=docker \
+    JAVA_TOOL_OPTIONS="-Djava.net.preferIPv4Stack=true"
+
 COPY --from=build /workspace/app.jar /app/app.jar
 
 EXPOSE 8080
-ENV SERVER_PORT=8080 \
-    SPRING_PROFILES_ACTIVE=docker
 ENTRYPOINT ["java","-jar","/app/app.jar"]
