@@ -29,6 +29,7 @@ import ru.practicum.ewm.service.user.model.User;
 import ru.practicum.ewm.service.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -79,13 +80,13 @@ public class EventServiceInternalImpl implements EventServiceInternal {
 
     @Transactional
     @Override
-    public void updateRequestStatus(UpdateRequestDto updateRequestDto, Long userId, Long eventId) {
+    public List<ParticipationRequestDto> updateRequestStatus(UpdateRequestDto updateRequestDto, Long userId, Long eventId) {
 
         // проверка, что запрос на обновление статуса запроса - CONFIRMED
         if (updateRequestDto.getStatus() != RequestStatus.CONFIRMED) {
             String message = String.format("Required request status: %s. Current request status: %s",
                     RequestStatus.CONFIRMED, updateRequestDto.getStatus());
-            throw new BadRequestException(message);
+            throw new ConflictException(message);
         }
 
         // проверка на наличие пользователя (инициатора события) в БД
@@ -111,7 +112,7 @@ public class EventServiceInternalImpl implements EventServiceInternal {
         if (currentEvent.getParticipantLimit() != null) {
             if (currentEvent.getParticipantLimit() == 0) {
                 log.info("Request conformation is not required. Participant limit: 0 (unlimited)");
-                return;
+                return Collections.emptyList();
             }
         }
 
@@ -129,7 +130,7 @@ public class EventServiceInternalImpl implements EventServiceInternal {
         if (currentEvent.getRequestModeration() != null) {
             if (!currentEvent.getRequestModeration()) {
                 log.info("Request conformation is not required. Request moderation of event: false");
-                return;
+                return Collections.emptyList();
             }
         }
 
@@ -185,7 +186,10 @@ public class EventServiceInternalImpl implements EventServiceInternal {
         requests.forEach(r -> r.setStatus(newStatus));
 
         // запись запросов на участие в БД
-        requestRepository.saveAll(requests);
+        List<ParticipationRequest> requestList = requestRepository.saveAll(requests);
+        return requestList.stream()
+                .map(RequestMapper::toRequestDto)
+                .toList();
     }
 
     @Override

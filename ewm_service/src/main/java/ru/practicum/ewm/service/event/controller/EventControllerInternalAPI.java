@@ -77,11 +77,12 @@ public class EventControllerInternalAPI {
     }
 
     @PatchMapping("/{eventId}/requests")
-    public void updateRequestStatus(
+    public List<ParticipationRequestDto> updateRequestStatus(
             @PathVariable("userId") @Positive @NotNull Long userId,
             @PathVariable("eventId") @Positive @NotNull Long eventId,
             @RequestBody @Valid UpdateRequestDto updateRequestDto
     ) {
-        eventServiceInternal.updateRequestStatus(updateRequestDto, userId, eventId);
+        log.info("PATCH /users/{}/events/{}/requests with body{}", userId, eventId, updateRequestDto);
+        return eventServiceInternal.updateRequestStatus(updateRequestDto, userId, eventId);
     }
 }
