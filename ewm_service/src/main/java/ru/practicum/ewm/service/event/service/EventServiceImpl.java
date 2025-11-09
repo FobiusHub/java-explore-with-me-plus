@@ -138,11 +138,13 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Event with id=" + eventId + " was not found");
         }
 
+        long currentViews = statsClient.viewsForEvent(e.getId());
         statsClient.hit(uri, ip);
+
         return EventMapper.toFullDto(
                 e,
                 requestRepository.countByEventIdAndStatus(e.getId(), RequestStatus.CONFIRMED),
-                statsClient.viewsForEvent(e.getId())
+                currentViews + 1
         );
     }
 
