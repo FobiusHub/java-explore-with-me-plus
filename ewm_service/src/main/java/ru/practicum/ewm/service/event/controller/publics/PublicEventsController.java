@@ -73,10 +73,18 @@ public class PublicEventsController {
     @GetMapping("/{id}")
     public EventFullDto getById(@PathVariable("id") Long id,
                                 HttpServletRequest request) {
+        String ip;
+        String xff = request.getHeader("X-Forwarded-For");
+        if (xff != null && !xff.isBlank()) {
+            ip = xff.split(",")[0];
+        } else {
+            ip = request.getRemoteAddr();
+        }
+
         return service.publicGet(
                 id,
-                request.getRequestURI(),
-                request.getRemoteAddr()
+                "/events/" + id,
+                ip
         );
     }
 }

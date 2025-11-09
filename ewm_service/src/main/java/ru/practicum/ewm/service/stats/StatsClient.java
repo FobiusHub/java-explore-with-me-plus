@@ -2,6 +2,7 @@ package ru.practicum.ewm.service.stats;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -33,7 +34,7 @@ public class StatsClient {
         try {
             EndpointHit payload = EndpointHit.builder()
                     .app(appName)
-                    .uri(uri)
+                    .uri(uri.trim())
                     .ip(ip)
                     .timestamp(LocalDateTime.now().format(F))
                     .build();
@@ -59,34 +60,27 @@ public class StatsClient {
 
     /** Универсальный метод подсчёта просмотров по одному URI. */
     public long viewsForUri(String uri, boolean unique) {
-        try {
-            // широкий интервал: с 2000-01-01 до "сейчас"
-            String start = "2000-01-01 00:00:00";
-            String end = LocalDateTime.now().format(F);
 
-            List<ViewStats> body = client.get()
-                    .uri(builder -> builder
-                            .path("/stats")
-                            .queryParam("start", start)
-                            .queryParam("end", end)
-                            .queryParam("unique", unique)
-                            .queryParam("uris", uri) // можно повторять param для списка, тут один
-                            .build())
-                    .retrieve()
-                    .body(new org.springframework.core.ParameterizedTypeReference<List<ViewStats>>() {});
+        String start = "2000-01-01 00:00:00";
+        String end = LocalDateTime.now().format(F);
 
-            if (body == null || body.isEmpty()) {
-                return 0L;
-            }
+        List<ViewStats> body = client.get()
+                .uri(builder -> builder
+                        .path("/stats")
+                        .queryParam("start", start)
+                        .queryParam("end", end)
+                        .queryParam("unique", unique)
+                        .queryParam("uris", uri.trim()) // можно повторять param для списка, тут один
+                        .build())
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<ViewStats>>() {});
 
-            // если сервис вернёт несколько записей (по разным app) — суммируем
-            return body.stream()
-                    .filter(v -> uri.equals(v.getUri()))
-                    .mapToLong(ViewStats::getHits)
-                    .sum();
-        } catch (Exception e) {
-            log.warn("Failed to fetch stats for uri={}: {}", uri, e.toString());
-            return 0L;
-        }
+        long sum = (body == null ? 0L :
+                body.stream()
+                        .filter(v -> uri.trim().equals(v.getUri())) // ОК, но теперь uri идентичен
+                        .mapToLong(ViewStats::getHits)
+                        .sum());
+        log.debug("STATS for {} => {}", uri, body);
+        return sum;
     }
 }
