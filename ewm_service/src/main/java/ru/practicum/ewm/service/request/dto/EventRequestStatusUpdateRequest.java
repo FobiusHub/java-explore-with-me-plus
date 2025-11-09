@@ -10,5 +10,11 @@ import java.util.List;
 @Builder
 public class EventRequestStatusUpdateRequest {
     private List<Long> requestIds;  // какие заявки трогаем
-    private String status;          // "CONFIRMED" или "REJECTED"
+
+    private Status status;
+
+    public enum Status {
+        CONFIRMED,
+        REJECTED
+    }
 }

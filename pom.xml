@@ -12,9 +12,11 @@
 
 	<name>Explore With Me</name>
     <modules>
-        <module>stat_svc</module>
-		<module>ewm_service</module>
-	</modules>
+        <module>stat_svc/dto</module>
+        <module>stat_svc/client</module>
+        <module>stat_svc/service</module>
+        <module>ewm_service</module>
+    </modules>
 
     <groupId>ru.practicum</groupId>
 	<artifactId>explore-with-me</artifactId>
@@ -26,16 +28,16 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok</artifactId>
-				<version>${lombok.version}</version>
-				<optional>true</optional>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <optional>true</optional>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 	<build>
 		<pluginManagement>
@@ -214,5 +216,4 @@
 			</build>
 		</profile>
 	</profiles>
-
 </project>
