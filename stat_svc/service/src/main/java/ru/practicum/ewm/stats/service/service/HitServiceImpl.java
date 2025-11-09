@@ -11,57 +11,57 @@ import ru.practicum.ewm.stats.service.model.EndpointHit;
 import ru.practicum.ewm.stats.service.repository.HitRepository;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class HitServiceImpl implements HitService {
-    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final HitRepository hitRepository;
 
     @Transactional
     @Override
-    public void create(EndpointHitDto hitDto) {
-        EndpointHit endpointHit = HitMapper.toEndpointHit(hitDto);
-        hitRepository.save(endpointHit);
+    public EndpointHitDto create(EndpointHitDto hitDto) {
+        EndpointHit entity = HitMapper.toEndpointHit(hitDto);
+        entity = hitRepository.save(entity);
+        return HitMapper.toDto(entity); // 201 + json тело в контроллере
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<ViewStatsDto> viewStats(String start, String end, List<String> uris, boolean unique) {
-        LocalDateTime ldtStart = LocalDateTime.parse(start, FMT);
-        LocalDateTime ldtEnd = LocalDateTime.parse(end, FMT);
+    public List<ViewStatsDto> viewStats(LocalDateTime start,
+                                        LocalDateTime end,
+                                        List<String> uris,
+                                        boolean unique) {
+        // Валидируем ЗДЕСЬ, чтобы юнит-тесты (которые идут в сервис) видели IllegalArgumentException
+        Objects.requireNonNull(start, "start must not be null");
+        Objects.requireNonNull(end,   "end must not be null");
 
-        if (ldtStart.equals(ldtEnd)) {
-            log.warn("Даты начала и окончания должны различаться");
-            throw new IllegalArgumentException("Даты начала и окончания должны различаться");
+        if (start.isEqual(end)) {
+            throw new IllegalArgumentException("start and end must be different");
         }
-
-        if (ldtStart.isAfter(ldtEnd)) {
-            log.warn("Дата начала не может быть после даты окончания");
-            throw new IllegalArgumentException("Дата начала не может быть после даты окончания");
+        if (start.isAfter(end)) {
+            throw new IllegalArgumentException("start must be before end");
         }
 
         List<ViewStatsDto> result;
-
         if (uris != null && !uris.isEmpty()) {
-            if (unique) {
-                result = hitRepository.getUniqueStatsByUris(ldtStart, ldtEnd, uris);
-            } else {
-                result = hitRepository.getStatsByUris(ldtStart, ldtEnd, uris);
-            }
+            result = unique
+                    ? hitRepository.getUniqueStatsByUris(start, end, uris)
+                    : hitRepository.getStatsByUris(start, end, uris);
         } else {
-            if (unique) {
-                result = hitRepository.getUniqueStats(ldtStart, ldtEnd);
-            } else {
-                result = hitRepository.getStats(ldtStart, ldtEnd);
-            }
+            result = unique
+                    ? hitRepository.getUniqueStats(start, end)
+                    : hitRepository.getStats(start, end);
         }
 
-        return result.stream().sorted((Comparator.comparing(ViewStatsDto::getHits).reversed())).toList();
+        if (result == null || result.isEmpty()) {
+            return List.of();
+        }
+        result.sort(Comparator.comparingLong(ViewStatsDto::getHits).reversed());
+        return result;
     }
 }

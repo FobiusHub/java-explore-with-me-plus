@@ -52,37 +52,27 @@ public class Client {
 
         while (true) {
             try {
-                rest.postForEntity("/hit", dto, Void.class);
+                // сервер отвечает 201 + JSON; можем получить тело, хотя оно нам не критично
+                rest.postForEntity("/hit", dto, EndpointHitDto.class);
                 if (log.isTraceEnabled()) {
                     log.trace("POST /hit sent: app={}, uri={}, ip={}, ts={}",
                             dto.getApp(), dto.getUri(), dto.getIp(), dto.getTimestamp());
                 }
                 return;
             } catch (RestClientException ex) {
-                // не пробрасываем — только логи
                 if (attempt >= max) {
                     log.warn("StatsClient: POST /hit failed after {} attempt(s). Continue without stats. reason={}",
-                            attempt, ex.toString());
-                    if (log.isDebugEnabled()) {
-                        log.debug("POST /hit exception stacktrace", ex);
-                    }
+                            attempt, ex.toString(), ex);
                     return;
                 }
-                // посчитать задержку (экспоненциальная с потолком)
                 long delay = baseBackoff * (1L << (attempt - 1));
                 if (delay > cap) delay = cap;
-
                 log.warn("StatsClient: POST /hit failed on attempt {}/{}. Retry in {} ms. reason={}",
                         attempt, max, delay, ex.toString());
-
                 safeSleep(delay);
                 attempt++;
             } catch (RuntimeException ex) {
-                // на всякий случай — ничего не роняем
-                log.warn("StatsClient: unexpected error on POST /hit. Continue without stats. {}", ex.toString());
-                if (log.isDebugEnabled()) {
-                    log.debug("Unexpected exception on /hit", ex);
-                }
+                log.warn("StatsClient: unexpected error on POST /hit. Continue without stats. {}", ex.toString(), ex);
                 return;
             }
         }
@@ -92,25 +82,29 @@ public class Client {
      * GET /stats
      * Исключения НЕ подавляем по твоему требованию.
      */
+
     public List<ViewStatsDto> stats(@NonNull LocalDateTime start,
                                     @NonNull LocalDateTime end,
                                     List<String> uris,
                                     boolean unique) {
+
         UriComponentsBuilder b = UriComponentsBuilder
                 .fromPath("/stats")
                 .queryParam("start", FMT.format(start))
-                .queryParam("end", FMT.format(end))
+                .queryParam("end",   FMT.format(end))
                 .queryParam("unique", unique);
+
         if (uris != null && !uris.isEmpty()) {
-            b.queryParam("uris", uris.toArray());
+            b.queryParam("uris", uris.toArray(String[]::new)); // множественные ?uris=
         }
-        URI uri = b.build(true).toUri();
+
+        // ВАЖНО: кодируем пробелы и прочие спецсимволы
+        URI uri = b.build().encode().toUri();
 
         ResponseEntity<ViewStatsDto[]> resp = rest.getForEntity(uri, ViewStatsDto[].class);
         ViewStatsDto[] body = resp.getBody();
         return (body == null) ? Collections.emptyList() : Arrays.asList(body);
     }
-
 
     private void safeSleep(long millis) {
         try {
