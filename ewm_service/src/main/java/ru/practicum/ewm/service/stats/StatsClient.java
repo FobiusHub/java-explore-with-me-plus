@@ -63,24 +63,29 @@ public class StatsClient {
 
         String start = "2000-01-01 00:00:00";
         String end = LocalDateTime.now().format(F);
+        try {
+            List<ViewStats> body = client.get()
+                    .uri(builder -> builder
+                            .path("/stats")
+                            .queryParam("start", start)
+                            .queryParam("end", end)
+                            .queryParam("unique", unique)
+                            .queryParam("uris", uri.trim()) // можно повторять param для списка, тут один
+                            .build())
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<List<ViewStats>>() {
+                    });
 
-        List<ViewStats> body = client.get()
-                .uri(builder -> builder
-                        .path("/stats")
-                        .queryParam("start", start)
-                        .queryParam("end", end)
-                        .queryParam("unique", unique)
-                        .queryParam("uris", uri.trim()) // можно повторять param для списка, тут один
-                        .build())
-                .retrieve()
-                .body(new ParameterizedTypeReference<List<ViewStats>>() {});
-
-        long sum = (body == null ? 0L :
-                body.stream()
-                        .filter(v -> uri.trim().equals(v.getUri())) // ОК, но теперь uri идентичен
-                        .mapToLong(ViewStats::getHits)
-                        .sum());
-        log.debug("STATS for {} => {}", uri, body);
-        return sum;
+            long sum = (body == null ? 0L :
+                    body.stream()
+                            .filter(v -> uri.trim().equals(v.getUri())) // ОК, но теперь uri идентичен
+                            .mapToLong(ViewStats::getHits)
+                            .sum());
+            log.debug("STATS for {} => {}", uri, body);
+            return sum;
+        } catch (Exception e) {
+            log.warn("Stats unavailable for {}: {}", uri, e.toString());
+            return 0L; // не валим /events/{id}
+        }
     }
 }
