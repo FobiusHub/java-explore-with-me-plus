@@ -6,12 +6,23 @@ import ru.practicum.ewm.stats.service.model.EndpointHit;
 
 @UtilityClass
 public class HitMapper {
+
     public EndpointHit toEndpointHit(EndpointHitDto dto) {
-        EndpointHit endpointHit = new EndpointHit();
-        endpointHit.setApp(dto.getApp());
-        endpointHit.setUri(dto.getUri());
-        endpointHit.setIp(dto.getIp());
-        endpointHit.setHitTimestamp(dto.getTimestamp());
-        return endpointHit;
+        EndpointHit e = new EndpointHit();
+        e.setApp(dto.getApp());
+        e.setUri(dto.getUri());
+        e.setIp(dto.getIp());
+        e.setHitTimestamp(dto.getTimestamp());
+        return e;
+    }
+
+    public EndpointHitDto toDto(EndpointHit e) {
+        EndpointHitDto dto = new EndpointHitDto();
+        dto.setId(e.getId());
+        dto.setApp(e.getApp());
+        dto.setUri(e.getUri());
+        dto.setIp(e.getIp());
+        dto.setTimestamp(e.getHitTimestamp());
+        return dto;
     }
 }

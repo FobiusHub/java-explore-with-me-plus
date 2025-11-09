@@ -20,10 +20,10 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
-@SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class HitServiceImplTest {
+class HitServiceImplTest {
+
     private final HitService hitService;
     private final HitRepository hitRepository;
 
@@ -35,7 +35,9 @@ public class HitServiceImplTest {
         hitDto.setIp("10.10.10.13");
         hitDto.setTimestamp(LocalDateTime.of(2025, 10, 1, 13, 50));
 
-        hitService.create(hitDto);
+        EndpointHitDto saved = hitService.create(hitDto);  // <-- теперь метод возвращает DTO
+
+        // проверяем, что реально сохранилось в БД
         List<EndpointHit> hitList = hitRepository.findAll();
         EndpointHit hit = hitList.getFirst();
 
@@ -44,22 +46,28 @@ public class HitServiceImplTest {
         assertThat(hit.getApp(), equalTo(hitDto.getApp()));
         assertThat(hit.getUri(), equalTo(hitDto.getUri()));
         assertThat(hit.getHitTimestamp(), equalTo(hitDto.getTimestamp()));
+
+        // и что вернулся корректный ответ
+        assertThat(saved.getId(), notNullValue());
+        assertThat(saved.getApp(), equalTo(hitDto.getApp()));
+        assertThat(saved.getUri(), equalTo(hitDto.getUri()));
+        assertThat(saved.getTimestamp(), equalTo(hitDto.getTimestamp()));
     }
 
     @Test
     void viewStatsShouldThrowIllegalArgumentExceptionIfStartAndEndIsEqual() {
-        String date = "2025-01-01 12:40:00";
-        assertThrows(IllegalArgumentException.class, () -> {
-            hitService.viewStats(date, date, null, true);
-        });
+        LocalDateTime date = LocalDateTime.of(2025, 1, 1, 12, 40, 0);
+        assertThrows(IllegalArgumentException.class, () ->
+                hitService.viewStats(date, date, null, true)
+        );
     }
 
     @Test
     void viewStatsShouldThrowIllegalArgumentExceptionIfStartIsAfterThanEnd() {
-        String start = "2026-01-01 12:40:00";
-        String end = "2025-01-01 12:40:00";
-        assertThrows(IllegalArgumentException.class, () -> {
-            hitService.viewStats(start, end, null, true);
-        });
+        LocalDateTime start = LocalDateTime.of(2026, 1, 1, 12, 40, 0);
+        LocalDateTime end   = LocalDateTime.of(2025, 1, 1, 12, 40, 0);
+        assertThrows(IllegalArgumentException.class, () ->
+                hitService.viewStats(start, end, null, true)
+        );
     }
 }
