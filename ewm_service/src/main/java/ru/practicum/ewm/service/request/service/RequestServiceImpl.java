@@ -133,7 +133,7 @@ public class RequestServiceImpl implements RequestService {
                     .build();
         }
 
-        String action = body.getStatus();
+        String action = body.getStatus().toString();
         if (!"CONFIRMED".equalsIgnoreCase(action) && !"REJECTED".equalsIgnoreCase(action)) {
             throw new IllegalArgumentException("status must be CONFIRMED or REJECTED");
         }

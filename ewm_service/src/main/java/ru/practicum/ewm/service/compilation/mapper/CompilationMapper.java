@@ -32,21 +32,6 @@ public class CompilationMapper {
     }
 
     /**
-     * Частичное обновление сущности подборки.
-     */
-    public void updateEntity(UpdateCompilationRequest dto, Compilation compilation) {
-        if (dto.getTitle() != null) {
-            compilation.setTitle(dto.getTitle());
-        }
-        if (dto.getPinned() != null) {
-            compilation.setPinned(dto.getPinned());
-        }
-        if (dto.getEvents() != null) {
-            compilation.setEvents(new HashSet<>(dto.getEvents()));
-        }
-    }
-
-    /**
      * Преобразует подборку в DTO.
      */
     public CompilationDto toDto(Compilation compilation, List<EventShortDto> events) {

@@ -11,7 +11,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>ewm-stats-dto</artifactId>
+    <artifactId>stats-dto</artifactId>
+    <name>stats-dto</name>
     <packaging>jar</packaging>
 
     <properties>

@@ -23,7 +23,7 @@ public class HitController {
 
     @PostMapping(value = "/hit", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public EndpointHitDto  create(@Valid @RequestBody EndpointHitDto hitDto) {
+    public EndpointHitDto create(@Valid @RequestBody EndpointHitDto hitDto) {
         return hitService.create(hitDto);
     }
 

@@ -10,8 +10,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>ewm-stats-client</artifactId>
-    <name>ewm-stats-client</name>
+    <artifactId>stats-client</artifactId>
+    <name>stats-client</name>
     <packaging>jar</packaging>
 
     <properties>
@@ -23,7 +23,7 @@
     <dependencies>
         <dependency>
             <groupId>ru.practicum</groupId>
-            <artifactId>ewm-stats-dto</artifactId>
+            <artifactId>stats-dto</artifactId>
             <version>${project.version}</version>
         </dependency>
 
