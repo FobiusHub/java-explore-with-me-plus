@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,6 +28,7 @@ import ru.practicum.ewm.service.request.repository.RequestRepository;
 import ru.practicum.ewm.service.user.repository.UserRepository;
 import ru.practicum.ewm.stats.client.StatsClient;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -130,6 +132,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto publicGet(Long eventId, String uri, String ip) {
+        log.info(">>> publicGet called: eventId={}, uri='{}', ip={}", eventId, uri, ip);
         var e = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Event with id=" + eventId + " was not found")
         );
@@ -138,13 +141,16 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Event with id=" + eventId + " was not found");
         }
 
-        long currentViews = statsClient.viewsForEvent(e.getId());
         statsClient.hit(uri, ip);
+        log.info(">>> Hit sent to stats-service");
+
+        long currentViews = statsClient.viewsForEvent(e.getId());
+        log.info(">>> Current views from stats: {}", currentViews);
 
         return EventMapper.toFullDto(
                 e,
                 requestRepository.countByEventIdAndStatus(e.getId(), RequestStatus.CONFIRMED),
-                currentViews + 1
+                currentViews
         );
     }
 

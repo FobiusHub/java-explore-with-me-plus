@@ -59,6 +59,7 @@ public class StatsClient {
             try {
                 // сервер возвращает 201 + json с записанным хит-DTO
                 rest.postForEntity("/hit", dto, EndpointHitDto.class);
+                log.info("Hit sent successfully: id={}, uri={}", dto.getId(), dto.getUri());
                 if (log.isTraceEnabled()) {
                     log.trace("POST /hit sent: app={}, uri={}, ip={}, ts={}",
                             dto.getApp(), dto.getUri(), dto.getIp(), dto.getTimestamp());
@@ -72,12 +73,12 @@ public class StatsClient {
                 }
                 long delay = baseBackoff * (1L << (attempt - 1));
                 if (delay > cap) delay = cap;
-                log.warn("StatsClient: POST /hit failed on attempt {}/{}. Retry in {} ms. reason={}",
+                log.info("StatsClient: POST /hit failed on attempt {}/{}. Retry in {} ms. reason={}",
                         attempt, max, delay, ex.toString());
                 safeSleep(delay);
                 attempt++;
             } catch (RuntimeException ex) {
-                log.warn("StatsClient: unexpected error on POST /hit. Continue without stats. {}", ex.toString(), ex);
+                log.info("StatsClient: unexpected error on POST /hit. Continue without stats. {}", ex.toString(), ex);
                 return;
             }
         }
