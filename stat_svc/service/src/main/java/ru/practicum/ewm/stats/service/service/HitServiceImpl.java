@@ -26,7 +26,11 @@ public class HitServiceImpl implements HitService {
     @Override
     public EndpointHitDto create(EndpointHitDto hitDto) {
         EndpointHit entity = HitMapper.toEndpointHit(hitDto);
+        if (entity.getUri() != null) {
+            entity.setUri(entity.getUri().trim());
+        }
         entity = hitRepository.save(entity);
+        log.info("Saved hit with id={}", entity.getId());
         return HitMapper.toDto(entity); // 201 + json тело в контроллере
     }
 
@@ -58,10 +62,15 @@ public class HitServiceImpl implements HitService {
                     : hitRepository.getStats(start, end);
         }
 
+        log.info("Query returned {} results", result.size());
+
         if (result == null || result.isEmpty()) {
             return List.of();
         }
         result.sort(Comparator.comparingLong(ViewStatsDto::getHits).reversed());
+
+        long totalHits = hitRepository.count();
+        log.info("Total hits in DB: {}", totalHits);
         return result;
     }
 }
