@@ -5,8 +5,7 @@ import lombok.*;
 import ru.practicum.ewm.service.category.dto.CategoryDto;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

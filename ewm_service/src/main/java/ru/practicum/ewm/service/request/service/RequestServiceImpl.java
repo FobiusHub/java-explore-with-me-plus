@@ -1,5 +1,8 @@
 package ru.practicum.ewm.service.request.service;
 
+import static ru.practicum.ewm.service.request.dto.EventRequestStatusUpdateRequest.Status.CONFIRMED;
+import static ru.practicum.ewm.service.request.dto.EventRequestStatusUpdateRequest.Status.REJECTED;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -133,15 +136,15 @@ public class RequestServiceImpl implements RequestService {
                     .build();
         }
 
-        String action = body.getStatus().toString();
-        if (!"CONFIRMED".equalsIgnoreCase(action) && !"REJECTED".equalsIgnoreCase(action)) {
+        var action = body.getStatus();
+        if (action != CONFIRMED && action != REJECTED) {
             throw new IllegalArgumentException("status must be CONFIRMED or REJECTED");
         }
 
         int limit = event.getParticipantLimit();
         long alreadyConfirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
 
-        if ("CONFIRMED".equalsIgnoreCase(action) && limit > 0 && alreadyConfirmed >= limit) {
+        if (action == CONFIRMED && limit > 0 && alreadyConfirmed >= limit) {
             throw new IllegalStateException("The participant limit has been reached");
         }
 
@@ -160,7 +163,7 @@ public class RequestServiceImpl implements RequestService {
                 throw new IllegalStateException("Можно изменять только заявки в статусе PENDING");
             }
 
-            if ("REJECTED".equalsIgnoreCase(action)) {
+            if (action == REJECTED) {
                 r.setStatus(RequestStatus.REJECTED);
                 rejected.add(RequestMapper.toRequestDto(r));
             } else { // CONFIRMED
