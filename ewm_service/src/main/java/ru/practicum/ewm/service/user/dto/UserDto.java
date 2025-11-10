@@ -2,8 +2,7 @@ package ru.practicum.ewm.service.user.dto;
 
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
