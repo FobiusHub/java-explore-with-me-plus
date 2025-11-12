@@ -15,7 +15,8 @@ import ru.practicum.ewm.service.event.mapper.EventMapper;
 import ru.practicum.ewm.service.event.repository.EventRepository;
 import ru.practicum.ewm.service.request.model.RequestStatus;
 import ru.practicum.ewm.service.request.repository.RequestRepository;
-import ru.practicum.ewm.stats.client.StatsClient;
+import ru.practicum.ewm.service.stats.StatsClient;
+
 import java.util.List;
 import java.util.Set;
 
@@ -36,10 +37,8 @@ public class CompilationPublicServiceImpl implements CompilationPublicService {
     public List<CompilationDto> getCompilations(Boolean pinned, int from, int size) {
         log.info("PUBLIC: запрос подборок: pinned={}, from={}, size={}", pinned, from, size);
         var pageable = PageRequest.of(from / size, size);
-
-        List<Compilation> compilations = (pinned == null)
-                ? repository.findAll(pageable).getContent()
-                : repository.findByPinned(pinned, pageable);
+        // Оставляем твой QueryDSL-метод как есть
+        List<Compilation> compilations = repository.findCompilations(pinned, pageable);
 
         return compilations.stream()
                 .map(this::mapCompilationWithEvents)
