@@ -1,8 +1,9 @@
 package ru.practicum.ewm.service.event.service;
 
-import java.util.List;
-import ru.practicum.ewm.service.event.dto.*;
 import org.springframework.data.domain.Pageable;
+import ru.practicum.ewm.service.event.dto.*;
+
+import java.util.List;
 
 public interface EventService {
     List<EventShortDto> publicSearch(String text,
