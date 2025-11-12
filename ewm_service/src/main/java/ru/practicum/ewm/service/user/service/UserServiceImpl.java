@@ -1,3 +1,4 @@
+// ru.practicum.ewm.service.user.service.UserServiceImpl
 package ru.practicum.ewm.service.user.service;
 
 import lombok.RequiredArgsConstructor;

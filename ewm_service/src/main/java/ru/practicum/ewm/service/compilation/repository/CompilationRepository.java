@@ -2,13 +2,15 @@ package ru.practicum.ewm.service.compilation.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.ewm.service.compilation.model.Compilation;
-import org.springframework.data.domain.Pageable;
-import java.util.List;
+
+import java.util.Optional;
 
 /**
  * Основной репозиторий подборок.
  */
-public interface CompilationRepository extends JpaRepository<Compilation, Long> {
+public interface CompilationRepository extends JpaRepository<Compilation, Long>, CustomCompilationRepository {
+
     boolean existsByTitle(String title);
-    List<Compilation> findByPinned(boolean pinned, Pageable pageable);
+
+    Optional<Compilation> findByTitleIgnoreCase(String title);
 }

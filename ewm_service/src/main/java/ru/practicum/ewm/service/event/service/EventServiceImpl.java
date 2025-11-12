@@ -1,6 +1,24 @@
 package ru.practicum.ewm.service.event.service;
 
-import static ru.practicum.ewm.service.event.model.EventState.PUBLISHED;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.service.category.repository.CategoryRepository;
+import ru.practicum.ewm.service.event.dto.*;
+import ru.practicum.ewm.service.event.mapper.EventMapper;
+import ru.practicum.ewm.service.event.model.Event;
+import ru.practicum.ewm.service.event.model.EventState;
+import ru.practicum.ewm.service.event.model.Location;
+import ru.practicum.ewm.service.event.repository.EventRepository;
+import ru.practicum.ewm.service.exception.NotFoundException;
+import ru.practicum.ewm.service.request.model.RequestStatus;
+import ru.practicum.ewm.service.request.repository.RequestRepository;
+import ru.practicum.ewm.service.stats.StatsClient;
+import ru.practicum.ewm.service.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -8,27 +26,8 @@ import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import static ru.practicum.ewm.service.event.model.EventState.PUBLISHED;
 
-import ru.practicum.ewm.service.category.repository.CategoryRepository;
-import ru.practicum.ewm.service.event.dto.*;
-import ru.practicum.ewm.service.event.mapper.EventMapper;
-import ru.practicum.ewm.service.event.model.*;
-import ru.practicum.ewm.service.event.repository.EventRepository;
-import ru.practicum.ewm.service.exception.NotFoundException;
-import ru.practicum.ewm.service.request.model.RequestStatus;
-import ru.practicum.ewm.service.request.repository.RequestRepository;
-import ru.practicum.ewm.service.user.repository.UserRepository;
-import ru.practicum.ewm.stats.client.StatsClient;
-
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -132,7 +131,6 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto publicGet(Long eventId, String uri, String ip) {
-        log.info(">>> publicGet called: eventId={}, uri='{}', ip={}", eventId, uri, ip);
         var e = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Event with id=" + eventId + " was not found")
         );
@@ -142,15 +140,10 @@ public class EventServiceImpl implements EventService {
         }
 
         statsClient.hit(uri, ip);
-        log.info(">>> Hit sent to stats-service");
-
-        long currentViews = statsClient.viewsForEvent(e.getId());
-        log.info(">>> Current views from stats: {}", currentViews);
-
         return EventMapper.toFullDto(
                 e,
                 requestRepository.countByEventIdAndStatus(e.getId(), RequestStatus.CONFIRMED),
-                currentViews
+                statsClient.viewsForEvent(e.getId())
         );
     }
 

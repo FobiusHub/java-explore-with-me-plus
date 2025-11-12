@@ -3,7 +3,8 @@ package ru.practicum.ewm.service.request.dto;
 import lombok.*;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

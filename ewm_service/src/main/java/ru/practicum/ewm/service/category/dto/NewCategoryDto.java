@@ -3,7 +3,8 @@ package ru.practicum.ewm.service.category.dto;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
