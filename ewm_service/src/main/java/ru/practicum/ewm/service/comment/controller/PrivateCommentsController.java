@@ -9,13 +9,15 @@ import ru.practicum.ewm.service.comment.service.CommentService;
 import ru.practicum.ewm.service.comment.dto.CommentShortDto;
 import ru.practicum.ewm.service.comment.dto.NewCommentDto;
 
+import java.util.List;
+
 @Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users/{userId}/events/{eventId}/comments")
 public class PrivateCommentsController {
 
-    private CommentService commentService;
+    private final CommentService commentService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -44,5 +46,12 @@ public class PrivateCommentsController {
             @PathVariable Long commentId
     ) {
         return commentService.deleteCommentByPrivate(userId, eventId, commentId);
+    }
+
+    @GetMapping
+    public List<CommentShortDto> getAllCommentsByEvent(
+            @PathVariable Long eventId
+    ) {
+        return commentService.getAllCommentsByEventPublic(eventId);
     }
 }
