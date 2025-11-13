@@ -17,20 +17,12 @@ import java.util.List;
 @RequestMapping("/events/{eventId}/comments")
 public class PublicCommentController {
 
-    private CommentService commentService;
+    private final CommentService commentService;
 
     @GetMapping
     public List<CommentShortDto> getAllCommentsByEvent(
             @PathVariable Long eventId
     ) {
         return commentService.getAllCommentsByEventPublic(eventId);
-    }
-
-    @GetMapping("/{commentId}")
-    public CommentShortDto getCommentsOfUser(
-            @PathVariable Long userId,
-            @PathVariable Long commentId
-    ) {
-        return commentService.getComment(userId, commentId);
     }
 }

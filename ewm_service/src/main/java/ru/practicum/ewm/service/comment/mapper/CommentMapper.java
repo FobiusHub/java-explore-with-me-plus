@@ -12,6 +12,7 @@ public class CommentMapper {
             return null;
 
         return CommentShortDto.builder()
+                .id(comment.getId())
                 .text(comment.getText())
                 .commentator(comment.getCommentator())
                 .publishedOn(comment.getPublishedOn())

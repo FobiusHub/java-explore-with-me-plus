@@ -89,20 +89,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Эти API нужны только процессору -->
-        <dependency>
-            <groupId>jakarta.annotation</groupId>
-            <artifactId>jakarta.annotation-api</artifactId>
-            <version>2.1.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.persistence</groupId>
-            <artifactId>jakarta.persistence-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- официальный клиент и dto -->
         <dependency>
             <groupId>ru.practicum</groupId>
@@ -183,7 +169,9 @@
                 <executions>
                     <execution>
                         <id>ban-old-querydsl</id>
-                        <goals><goal>enforce</goal></goals>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
                         <configuration>
                             <rules>
                                 <bannedDependencies>

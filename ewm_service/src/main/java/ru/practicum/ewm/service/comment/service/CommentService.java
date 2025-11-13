@@ -20,6 +20,7 @@ import ru.practicum.ewm.service.request.repository.RequestRepository;
 import ru.practicum.ewm.service.user.model.User;
 import ru.practicum.ewm.service.user.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -48,7 +49,8 @@ public class CommentService {
 
         ParticipationRequest request = requestRepository.findByRequesterIdAndEventId(userId, eventId).orElseThrow(
                 () -> new IllegalArgumentException(
-                        "Unable to create comment. Request with userId=" + userId + " and eventId=" + eventId + "was not found")
+                        "Unable to create comment. Request with userId=" + userId + " and eventId=" + eventId +
+                                " was not found")
         );
 
         // у пользователя не одобрена заявка на событие
@@ -65,6 +67,8 @@ public class CommentService {
         Comment comment = Comment.builder()
                 .text(dto.getText())
                 .commentator(commentator)
+                .publishedOn(LocalDateTime.now())
+                .event(event)
                 .build();
 
         Comment cretedComment = commentRepository.save(comment);
@@ -107,7 +111,7 @@ public class CommentService {
 
         // комментарий не относится к событию eventId
         if (comment.getEvent() != null) {
-            if (Objects.equals(comment.getEvent().getId(), eventId)) {
+            if (!Objects.equals(comment.getEvent().getId(), eventId)) {
                 throw new IllegalArgumentException("Comment does not belong to event with id=" + eventId);
             }
         }
@@ -150,7 +154,7 @@ public class CommentService {
 
         // комментарий не относится к событию eventId
         if (comment.getEvent() != null) {
-            if (Objects.equals(comment.getEvent().getId(), eventId)) {
+            if (!Objects.equals(comment.getEvent().getId(), eventId)) {
                 throw new IllegalArgumentException("Comment does not belong to event with id=" + eventId);
             }
         }
