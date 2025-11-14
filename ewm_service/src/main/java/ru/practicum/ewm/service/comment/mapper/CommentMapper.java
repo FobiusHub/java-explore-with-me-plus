@@ -1,10 +1,12 @@
 package ru.practicum.ewm.service.comment.mapper;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.service.comment.dto.CommentFullDto;
 import ru.practicum.ewm.service.comment.dto.CommentShortDto;
 import ru.practicum.ewm.service.comment.model.Comment;
 import ru.practicum.ewm.service.event.mapper.EventMapper;
 
+@UtilityClass
 public class CommentMapper {
 
     public static CommentShortDto toShortDto(Comment comment) {

@@ -3,8 +3,7 @@ package ru.practicum.ewm.service.comment.dto;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

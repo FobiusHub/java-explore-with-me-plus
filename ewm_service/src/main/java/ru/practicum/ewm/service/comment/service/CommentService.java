@@ -29,11 +29,10 @@ import java.util.Objects;
 @AllArgsConstructor
 public class CommentService {
 
-    UserRepository userRepository;
-    CommentRepository commentRepository;
-    EventRepository eventRepository;
-    RequestRepository requestRepository;
-
+    private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
+    private final EventRepository eventRepository;
+    private final RequestRepository requestRepository;
 
     @Transactional
     public CommentShortDto createComment(NewCommentDto dto, Long userId, Long eventId) {
@@ -74,23 +73,6 @@ public class CommentService {
         Comment cretedComment = commentRepository.save(comment);
 
         return CommentMapper.toShortDto(cretedComment);
-    }
-
-    @Transactional
-    public CommentShortDto getComment(Long userId, Long commentId) {
-        Comment comment = commentRepository.findByIdAndDeleted(commentId, false).orElseThrow(
-                () -> new NotFoundException("Unable to get comment. Comment id=" + commentId + "not found")
-        );
-
-        // пользователь не является автором комментария
-        if (comment.getCommentator() != null) {
-            User commentator = comment.getCommentator();
-            if (!Objects.equals(commentator.getId(), userId))
-                throw new IllegalArgumentException(
-                        "Unable to patch comment. User with id=" + userId + " is not creator of comment id=" + commentId
-                );
-        }
-        return CommentMapper.toShortDto(comment);
     }
 
     @Transactional
@@ -176,11 +158,7 @@ public class CommentService {
 
     @Transactional
     public List<CommentShortDto> getAllCommentsByEventPublic(Long eventId) {
-
         List<Comment> commentList = commentRepository.findByEventIdAndDeleted(eventId, false);
-
-        if (commentList == null || commentList.isEmpty())
-            return Collections.emptyList();
 
         return commentList.stream()
                 .map(CommentMapper::toShortDto)
@@ -189,12 +167,7 @@ public class CommentService {
 
     @Transactional
     public List<CommentFullDto> getAllCommentsByEventAdmin(Long eventId) {
-
-        List<Comment> commentList = commentRepository.findByEventId(eventId);
-        if (commentList == null || commentList.isEmpty())
-            return Collections.emptyList();
-
-        return commentList.stream()
+        return commentRepository.findByEventId(eventId).stream()
                 .map(CommentMapper::toFullDto)
                 .toList();
     }
