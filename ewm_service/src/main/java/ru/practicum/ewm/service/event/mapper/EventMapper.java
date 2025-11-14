@@ -1,12 +1,13 @@
 package ru.practicum.ewm.service.event.mapper;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.service.event.dto.*;
 import ru.practicum.ewm.service.event.model.*;
 import ru.practicum.ewm.service.category.model.Category;
 import ru.practicum.ewm.service.user.model.User;
 
+@UtilityClass
 public final class EventMapper {
-    private EventMapper(){}
     public static EventShortDto toShortDto(Event e, long confirmed, long views) {
         return EventShortDto.builder()
                 .id(e.getId())

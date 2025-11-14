@@ -17,7 +17,7 @@ import ru.practicum.ewm.service.event.repository.EventRepository;
 import ru.practicum.ewm.service.exception.NotFoundException;
 import ru.practicum.ewm.service.request.model.RequestStatus;
 import ru.practicum.ewm.service.request.repository.RequestRepository;
-import ru.practicum.ewm.service.stats.StatsClient;
+import ru.practicum.ewm.stats.client.StatsClient;
 import ru.practicum.ewm.service.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
